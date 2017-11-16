@@ -31,7 +31,7 @@ Horisontal menu delimiters (-------{ description }------) can be added like this
 <pre>
 #Host DUMMY #DESCRIPTION#
 </pre>
-<hr size="1">
+------
 ~/.ssh/config example:</br>
 <pre>
 #Host DUMMY #Rybinsk#
@@ -54,17 +54,17 @@ User loser
 #Host DUMMY #Moscow#
 
 Host server1 #First server
-HostName 192.168.0.1
+HostName 192.168.1.1
 Port 22
 User admin
 
 Host server2 #Second server
-HostName 192.168.0.2
+HostName 192.168.1.2
 Port 22
 User user
 
 Host server3 #Third server
-HostName 192.168.0.3
+HostName 192.168.1.3
 Port 22
 User loser
 </pre>

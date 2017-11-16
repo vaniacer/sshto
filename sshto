@@ -58,10 +58,10 @@ function second_dialog { #Select command
 
 	case $command in
 
-		"add key") clear; ssh-copy-id $target;;
-		"add cls") clear; scp ~/.bash_aliases ${target}:~;;
+		"add key") clear; ssh-copy-id $target             ; second_dialog;;
+		"add cls") clear; scp ~/.bash_aliases ${target}:~ ; second_dialog;;
 		""       ) first_dialog;;
-		*        ) clear; ssh -t $target $command;;
+		*        ) clear; ssh -t $target $command; sleep 3; second_dialog;;
 
 	esac
 

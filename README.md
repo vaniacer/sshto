@@ -15,7 +15,8 @@ cmdlist=(
     "add cls"  "Add my usefull aliases on server."
 )
 </pre>
-Your commands can be easialy addad to this list.</br>
+Your commands can be easialy added to this list.</br>
+First collumn - command, second - description.</br>
 </br>
 Hosts description neds to be added like this:</br>
 <pre>

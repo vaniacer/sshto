@@ -1,6 +1,6 @@
 # sshto
 
-Small bash script thet builds a menu (via dialog) from your ~/.ssh/config.
+Small bash script that builds a menu (via dialog) from your ~/.ssh/config.
 Allow you to connect to your servers or run commands. Availible commands:
 
 cmdlist=(

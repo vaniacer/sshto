@@ -1,7 +1,7 @@
 # sshto
 
 Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/32890161-ab6ad284-cade-11e7-92c7-f6901cfd0905.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/32890161-ab6ad284-cade-11e7-92c7-f6901cfd0905.png)</br>
 Allow you to connect to your servers or run commands. Availible commands:</br>
 <pre>
 cmdlist=(
@@ -16,7 +16,7 @@ cmdlist=(
     "add cls"  "Add my usefull aliases on server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/32890160-ab43f696-cade-11e7-8c80-c51089354e37.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/32890160-ab43f696-cade-11e7-8c80-c51089354e37.png)</br>
 Your commands can be easialy added to this list.</br>
 First collumn - command, second - description.</br>
 </br>

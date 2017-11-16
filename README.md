@@ -18,11 +18,12 @@ cmdlist=(
 Your commands can be easialy addad to this list.</br>
 </br>
 Hosts description neds to be added like this:</br>
-</br>
-Host 192.168.0.1 #DESCRIPTION</br>
-Port 22</br>
-User admin</br>
-</br>
+<pre>
+Host 192.168.0.1 #DESCRIPTION
+Port 22
+User admin
+</pre>
 Horisontal menu delimiters (-------{ description }------) can be added like this:</br>
-</br>
+<pre>
 #Host DUMMY #DESCRIPTION#
+</pre>

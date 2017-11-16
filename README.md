@@ -12,8 +12,8 @@ cmdlist=(
     "df   -h"  "Show free disk space."
     "top -n1"  "Show summary system information."
     "       "  ""
-    "add key"  "Add my ssh key to server."
-    "add cls"  "Add my usefull aliases on server."
+    "add key"  "Add my ssh key to this server."
+    "add ali"  "Add my usefull aliases to this server."
 )
 </pre>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/32892005-e118405e-cae5-11e7-8b2d-0ee47d4c9d38.png)</br>

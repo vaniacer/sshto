@@ -31,3 +31,39 @@ Horisontal menu delimiters (-------{ description }------) can be added like this
 <pre>
 #Host DUMMY #DESCRIPTION#
 </pre>
+Test config:</br>
+<pre>
+#Host DUMMY #Rybinsk#
+
+Host server1 #First server
+HostName 192.168.0.1
+Port 22
+User admin
+
+Host server2 #Second server
+HostName 192.168.0.1
+Port 22
+User admin
+
+Host server3 #Third server
+HostName 192.168.0.1
+Port 22
+User admin
+
+#Host DUMMY #Moscow#
+
+Host server1 #First server
+HostName 192.168.0.1
+Port 22
+User admin
+
+Host server2 #Second server
+HostName 192.168.0.1
+Port 22
+User admin
+
+Host server3 #Third server
+HostName 192.168.0.1
+Port 22
+User admin
+</pre>

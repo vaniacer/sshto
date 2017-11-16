@@ -16,7 +16,7 @@ cmdlist=(
     "add cls"  "Add my usefull aliases on server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/32890160-ab43f696-cade-11e7-8c80-c51089354e37.png)</br>
+![screeenshot](https://user-images.githubusercontent.com/18072680/32892005-e118405e-cae5-11e7-8b2d-0ee47d4c9d38.png)</br>
 Your commands can be easialy added to this list.</br>
 First collumn - command, second - description.</br>
 </br>

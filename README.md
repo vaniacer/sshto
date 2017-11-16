@@ -12,7 +12,7 @@ cmdlist=(
     "df   -h"  "Show free disk space."
     "top -n1"  "Show summary system information."
     "       "  ""
-    "add key"  "Add my ssh key to server."</br>
+    "add key"  "Add my ssh key to server."
     "add cls"  "Add my usefull aliases on server."
 )
 </pre>
@@ -32,7 +32,7 @@ Horisontal menu delimiters '---{ text }---' can be added like this:</br>
 #Host DUMMY #DESCRIPTION#
 </pre>
 ------
-~/.ssh/config example:</br>
+~/.ssh/config example:
 <pre>
 #Host DUMMY #Rybinsk#
 

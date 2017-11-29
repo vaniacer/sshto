@@ -28,7 +28,7 @@ HostName 192.168.0.1
 Port 22
 User admin
 </pre>
-Horisontal menu delimiters '---{ text }---' can be added like this:</br>
+Start menu delimiters '---{ text }---' can be added like this:</br>
 <pre>
 #Host DUMMY #DESCRIPTION#
 </pre>

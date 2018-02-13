@@ -19,7 +19,7 @@ cmdlist=(
 ![screeenshot](https://user-images.githubusercontent.com/18072680/32892005-e118405e-cae5-11e7-8b2d-0ee47d4c9d38.png)</br>
 Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>
-Empty string is used as delimiter.</br>
+Empty string is used as a delimiter.</br>
 </br>
 Hosts description needs to be added like this:</br>
 <pre>

@@ -9,6 +9,7 @@ cmdlist=(
 	"df   -h"  "Show free disk space."
 	"top -n1"  "Show summary system information."
 	""         ""
+    "copy"     "Copy selected file or dir."
 	"add key"  "Add my ssh key to this server."
 	"add ali"  "Add my usefull aliases to this server."
 )
@@ -16,7 +17,7 @@ cmdlist=(
 #==================================================================================================
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
 
-function first_dialog {  #Select host
+function first_dialog { # Select host
 
 	target=$(dialog --output-fd 1 \
 					--extra-button --extra-label "RUN COMMAND" \
@@ -32,19 +33,26 @@ function first_dialog {  #Select host
 	esac
 }
 
-function second_dialog { #Select command
+function second_dialog { # Select command
 
 	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" --aspect 100 --colors \
-					 --menu "Select command to run on host \"\Z4${target}\Z0\":" 0 0 0 "${cmdlist[@]}")
+					 --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
 
 	case $command in
 
-		"add key") clear; ssh-copy-id $target             ; second_dialog;;
-		"add ali") clear; scp ~/.bash_aliases ${target}:~ ; second_dialog;;
+		"add key") clear; ssh-copy-id $target           ; second_dialog;;
+		"add ali") clear; scp ~/.bash_aliases $target:~ ; second_dialog;;
+        "copy"   ) file_copy; second_dialog;;
 		""       ) first_dialog;;
 		*        ) clear; ssh -t $target $command; sleep 3; second_dialog;;
 
 	esac
+}
+
+function file_copy { # Copy selected file to server
+
+    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
+    scp -r $filename $target:~
 }
 
 #==================================================================================================
@@ -54,16 +62,16 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep "Host " ~/.ssh/config | sed '/\*/d; s
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description
 
-    case ${name} in
+    case $name in
 
         '#DUMMY') desc="${host%\#*}"; desc="${desc##*\#}"
-                  name="{ ${desc} }"; line=$[ (40-${#name})/2 ]
-                  name=$(printf %.s- $(seq ${line}); printf "${name}"; printf %.s- $(seq ${line}))
-                  [ ${#name} -lt 40 ] && name=-${name}; desc=$(printf %.s- $(seq 20));;
+                  name="{ $desc }"; line=$[ (40-${#name})/2 ]
+                  name=$(printf %.s- $(seq $line); printf "$name"; printf %.s- $(seq $line))
+                  [[ ${#name} -lt 40 ]] && name=-$name; desc=$(printf %.s- $(seq 20));;
 
     esac
 
-    list+=( "${name}" "${desc}" )   #Add HostName and Description to the list
+    list+=( "$name" "$desc" )   #Add HostName and Description to the list
 
 done; IFS=$IFSOLD
 

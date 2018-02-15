@@ -12,6 +12,7 @@ cmdlist=(
     "df   -h"  "Show free disk space."
     "top -n1"  "Show summary system information."
     ""         ""
+    "copy"     "Copy selected file or dir."
     "add key"  "Add my ssh key to this server."
     "add ali"  "Add my usefull aliases to this server."
 )

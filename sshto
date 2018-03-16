@@ -17,6 +17,31 @@ cmdlist=(
 #==================================================================================================
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
 
+# If connecting first time send 'yes' on ssh's request.
+# Expect must be installed on server. Options:
+#   $1 - ssh address with parameters(if needed)
+#
+# Usage example:
+#   ssh_yes "-p22 user@localhost"
+
+function ssh_yes () {
+expect << EOF
+spawn ssh $1
+expect {
+    "(yes/no)?" {
+        send "yes\n"
+        expect {
+            "assword:" { exit }
+            "$ "       { send "exit\n" }
+        }
+    }
+    "assword:" { exit }
+    "$ "       { send "exit\n" }
+}
+exit
+EOF
+}
+
 function first_dialog { # Select host
 
 	target=$(dialog --output-fd 1 \
@@ -40,7 +65,7 @@ function second_dialog { # Select command
 
 	case $command in
 
-		"sshkey") clear; ssh-copy-id $target           ; second_dialog;;
+		"sshkey") clear; ssh_yes $target; ssh-copy-id $target; second_dialog;;
 		"alias" ) clear; scp ~/.bash_aliases $target:~ ; second_dialog;;
         "copy"  ) file_copy; second_dialog;;
 		""      ) first_dialog;;

@@ -10,8 +10,8 @@ cmdlist=(
 	"top -n1"  "Show summary system information."
 	""         ""
     "copy"     "Copy selected file or dir."
-	"add key"  "Add my ssh key to this server."
-	"add ali"  "Add my usefull aliases to this server."
+	"sshkey"   "Add my ssh key to this server."
+	"alias"    "Add my usefull aliases to this server."
 )
 
 #==================================================================================================
@@ -40,11 +40,11 @@ function second_dialog { # Select command
 
 	case $command in
 
-		"add key") clear; ssh-copy-id $target           ; second_dialog;;
-		"add ali") clear; scp ~/.bash_aliases $target:~ ; second_dialog;;
-        "copy"   ) file_copy; second_dialog;;
-		""       ) first_dialog;;
-		*        ) clear; ssh -t $target $command; sleep 3; second_dialog;;
+		"sshkey") clear; ssh-copy-id $target           ; second_dialog;;
+		"alias" ) clear; scp ~/.bash_aliases $target:~ ; second_dialog;;
+        "copy"  ) file_copy; second_dialog;;
+		""      ) first_dialog;;
+		*       ) clear; ssh -t $target $command; sleep 3; second_dialog;;
 
 	esac
 }

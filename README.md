@@ -13,11 +13,11 @@ cmdlist=(
     "top -n1"  "Show summary system information."
     ""         ""
     "copy"     "Copy selected file or dir."
-    "add key"  "Add my ssh key to this server."
-    "add ali"  "Add my usefull aliases to this server."
+    "sshkey"   "Add my ssh key to this server."
+    "alias"    "Add my usefull aliases to this server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/32892005-e118405e-cae5-11e7-8b2d-0ee47d4c9d38.png)</br>
+![screeenshot](https://user-images.githubusercontent.com/18072680/37520743-4b0b4f2c-292f-11e8-83f3-e7fe9799baec.png)</br>
 Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>
 Empty string is used as a delimiter.</br>

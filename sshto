@@ -15,6 +15,9 @@ cmdlist=(
 )
 
 #==================================================================================================
+# Check if dialog installed
+dialog &> /dev/null || { printf "\nInstall dialog\nsudo apt-get install -y dialog"; exit 1; }
+#==================================================================================================
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
 
 # If connecting first time send 'yes' on ssh's request.

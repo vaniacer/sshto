@@ -14,11 +14,9 @@ cmdlist=(
 	"sshkey"   "Add my ssh key to this server."
 	"alias"    "Add my usefull aliases to this server."
 )
-
-#==================================================================================================
-# Check if dialog installed
+#------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || { printf "\nInstall dialog\nsudo apt-get install -y dialog"; exit 1; }
-#==================================================================================================
+#------------------------{ Add some colors }---------------------------------------------
 case $TERM in *term*)
 #--------------------------------------------------------------------+
 #Color picker, usage: printf ${BLD}${CUR}${RED}${BBLU}"Hello!)"${DEF}|
@@ -54,7 +52,7 @@ XY   () { printf "\e[${2};${1}H${3}";   } #                          |
 line () { printf %.s"${1}" $(seq ${2}); } #                          |
 #--------------------------------------------------------------------+
 ;; esac
-
+#------------------------{ Info commands }---------------------------------------------------------
 sys_info="
 printf '\n${BLD}Hostname:${DEF}\n'
 hostname
@@ -87,29 +85,27 @@ netstat -tulpn 2> /dev/null
 printf '\n${BLD}Processes:${DEF}\n'
 top -bcn1 | head -n30
 "
-
+#------------------------{ Pause function }--------------------------------------------------------
 function pause {
     printf "\n${BLD}"
     read -p 'press any key to continue'
     printf "\n${DEF}"
 }
-
-function file_copy { # Copy selected file to server
-
+#------------------------{ Copy selected file to server }------------------------------------------
+function file_copy {
     filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
     scp -r $filename $target:~
 }
-
+#------------------------{ Exit function }---------------------------------------------------------
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
-
+#------------------------{ Yes to ssh }------------------------------------------------------------
+function ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.
 # Expect must be installed on server. Options:
 #   $1 - ssh address with parameters(if needed)
 #
 # Usage example:
 #   ssh_yes "-p22 user@localhost"
-
-function ssh_yes () {
 expect << EOF
 spawn ssh $1
 expect {
@@ -126,42 +122,32 @@ expect {
 exit
 EOF
 }
-
-function first_dialog { # Select host
-
+#------------------------{ First dialog - Select host }--------------------------------------------
+function first_dialog {
 	target=$(dialog --output-fd 1 \
 					--extra-button --extra-label "RUN COMMAND" \
 					--ok-label "CONNECT" --cancel-label "EXIT" \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
-
 	case $target:$? in
-
 		 *:0) clear; ssh $target;;
 		 *:3) second_dialog;;
 		"":*) bye;;
-
 	esac
 }
-
-function second_dialog { # Select command
-
+#------------------------{ Second dialog - Select command }----------------------------------------
+function second_dialog {
 	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" --aspect 100 --colors \
 					 --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
-
 	case $command in
-
 		"sshkey") clear; ssh_yes $target > /dev/null; ssh-copy-id $target; second_dialog;;
 		"alias" ) clear; scp ~/.bash_aliases $target:~ ; second_dialog;;
         "info"  ) clear; ssh $target "$sys_info"; pause; second_dialog;;
         "copy"  ) file_copy; second_dialog;;
 		""      ) first_dialog;;
 		*       ) clear; ssh -t $target $command; sleep 3; second_dialog;;
-
 	esac
 }
-
-#==================================================================================================
-#Create hosts list. Get hosts and descriptions from ~/.ssh/config.
+#-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
 IFSOLD=$IFS; IFS=$'\n'; for host in $(grep "Host " ~/.ssh/config | sed '/\*/d; s/Host //g;'); do
 
     name="${host// #*/}" # Get HostName
@@ -176,11 +162,10 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep "Host " ~/.ssh/config | sed '/\*/d; s
 
     esac
 
-    list+=( "$name" "$desc" )   #Add HostName and Description to the list
+    list+=( "$name" "$desc" ) #Add HostName and Description to the list
 
 done; IFS=$IFSOLD
 
-#GO)
-first_dialog
+#--{ Go baby, GO!) }--
+first_dialog; bye
 
-exit 0

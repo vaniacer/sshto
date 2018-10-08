@@ -94,6 +94,12 @@ function pause {
     printf "\n${DEF}"
 }
 
+function file_copy { # Copy selected file to server
+
+    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
+    scp -r $filename $target:~
+}
+
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
 
 # If connecting first time send 'yes' on ssh's request.
@@ -152,12 +158,6 @@ function second_dialog { # Select command
 		*       ) clear; ssh -t $target $command; sleep 3; second_dialog;;
 
 	esac
-}
-
-function file_copy { # Copy selected file to server
-
-    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
-    scp -r $filename $target:~
 }
 
 #==================================================================================================

@@ -136,6 +136,9 @@ function add_sshkey { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
 #------------------------{ Add aliases }-----------------------------------------------------------
 function add_aliases { clear; scp ~/.bash_aliases $target:~; }
 
+#------------------------{Run command }------------------------------------------------------------
+function run_command { clear; ssh -t $target $command; sleep 3; }
+
 #------------------------{ Exit function }---------------------------------------------------------
 function bye { clear; ls --color=auto; exit 0; }; trap bye INT
 
@@ -162,7 +165,7 @@ function second_dialog {
         "info"  ) system_info ; second_dialog;;
         "copy"  ) copy_files  ; second_dialog;;
 		""      ) first_dialog;;
-		*       ) clear; ssh -t $target $command; sleep 3; second_dialog;;
+		*       ) run_command ; second_dialog;;
 	esac
 }
 

@@ -1,7 +1,8 @@
 # sshto
 
 Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/32890161-ab6ad284-cade-11e7-92c7-f6901cfd0905.png)</br>
+![screeenshot](https://user-images.githubusercontent.com/18072680/32890161-ab6ad284-cade-11e7-92c7-f6901cfd0905.png)
+</br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
 <pre>
 cmdlist=(
@@ -12,12 +13,14 @@ cmdlist=(
     "df   -h"  "Show free disk space."
     "top -n1"  "Show summary system information."
     ""         ""
+    "info"     "Full system info."
     "copy"     "Copy selected file or dir."
     "sshkey"   "Add my ssh key to this server."
     "alias"    "Add my usefull aliases to this server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/37520743-4b0b4f2c-292f-11e8-83f3-e7fe9799baec.png)</br>
+![screeenshot](https://user-images.githubusercontent.com/18072680/46601507-f8840500-caf5-11e8-9f36-2a2169ae4c30.png)
+</br>
 Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>
 Empty string is used as a delimiter.</br>

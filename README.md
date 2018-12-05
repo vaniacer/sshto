@@ -25,7 +25,7 @@ Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>
 Empty string is used as a delimiter.</br>
 You can quick jump to the selected server via <i>CONNECT</i> button.</br>
-When you done press ^D it'll bring you back to ssgto commands section.</br>
+When you done press ^D it'll bring you back to sshto commands section.</br>
 </br>
 Hosts description needs to be added like this:</br>
 <pre>

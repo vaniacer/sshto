@@ -19,11 +19,13 @@ cmdlist=(
     "alias"    "Add my usefull aliases to this server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/46601507-f8840500-caf5-11e8-9f36-2a2169ae4c30.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/49509939-e1645800-f897-11e8-87d9-a26ba81be8ce.png)
 </br>
 Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>
 Empty string is used as a delimiter.</br>
+You can quick jump to the selected server via <i>CONNECT</i> button.</br>
+When you done press ^D it'll bring you back to ssgto commands section.</br>
 </br>
 Hosts description needs to be added like this:</br>
 <pre>

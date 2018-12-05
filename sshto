@@ -157,8 +157,12 @@ function first_dialog {
 
 #------------------------{ Second dialog - Select command }----------------------------------------
 function second_dialog {
-	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" --aspect 100 --colors \
-					 --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
+	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" \
+                     --extra-button --extra-label "CONNECT" --colors --aspect 100 \
+                     --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
+
+	case $? in 3) clear; ssh $target; second_dialog;; esac
+
 	case $command in
 		"sshkey") add_sshkey  ; second_dialog;;
 		"alias" ) add_aliases ; second_dialog;;

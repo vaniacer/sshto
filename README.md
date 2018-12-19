@@ -34,9 +34,9 @@ HostName 192.168.0.1
 Port 22
 User admin
 </pre>
-Start menu delimiters '---{ text }---' can be added like this:</br>
+Start menu delimiters '---{ TEXT }---' can be added like this:</br>
 <pre>
-#Host DUMMY #DESCRIPTION#
+#Host DUMMY #TEXT#
 </pre>
 ------
 ~/.ssh/config example:

@@ -174,7 +174,7 @@ function second_dialog {
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-IFSOLD=$IFS; IFS=$'\n'; for host in $(grep "Host " ~/.ssh/config | sed '/\*/d; s/Host //g;'); do
+IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/d; s/Host //g;'); do
 
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description

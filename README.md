@@ -76,8 +76,7 @@ Port 22
 User loser
 </pre>
 
-Include directive also supported. But included config files heve to be in ~/.ssh dir.
-And starts from 'config', example:
+Include directive also supported. But included config files heve to be in ~/.ssh dir, and start from 'config', example:
 <pre>
 Include config_*
 </pre>

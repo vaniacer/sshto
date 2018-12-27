@@ -19,7 +19,7 @@ cmdlist=(
     "alias"    "Add my usefull aliases to this server."
 )
 </pre>
-![screeenshot](https://user-images.githubusercontent.com/18072680/49509939-e1645800-f897-11e8-87d9-a26ba81be8ce.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/50470807-2aa15680-09c3-11e9-8830-1ababea75860.png)
 </br>
 Your commands can be easily added to this list.</br>
 First collumn - command, second - description.</br>

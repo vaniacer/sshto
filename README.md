@@ -75,8 +75,7 @@ HostName 192.168.1.3
 Port 22
 User loser
 </pre>
-
-Include directive also supported. But included config files have to be in <i>~/.ssh</i> dir, and start from <i>'config'</i>, example:
+Script greps multiple <i>config*</i> files in <i>~/.ssh</i> dir. This can be used with include directive, example:
 <pre>
 Include config_*
 </pre>

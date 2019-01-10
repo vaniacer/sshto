@@ -15,7 +15,13 @@ cmdlist=(
 	"alias"    "Add my usefull aliases to this server."
 )
 #------------------------{ Check if dialog installed }---------------------------------------------
-dialog &> /dev/null || { printf "\nInstall dialog\nsudo apt-get install -y dialog"; exit 1; }
+dialog &> /dev/null || { if [ $(uname -s) == "Darwin" ]; then
+                            # Use `brew install` if MacOS Detected
+                            printf "\nInstall dialog\nbrew install -y dialog"
+                         else
+                            printf "\nInstall dialog\nsudo apt-get install -y dialog"
+                         fi
+                         exit 1; }
 
 #------------------------{ Add some colors }---------------------------------------------
 case $TERM in *term*)
@@ -140,7 +146,7 @@ function add_aliases { clear; scp ~/.bash_aliases $target:~; }
 function run_command { clear; ssh -t $target $command; sleep 3; }
 
 #------------------------{ Exit function }---------------------------------------------------------
-function bye { clear; ls --color=auto; exit 0; }; trap bye INT
+function bye { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto; fi; exit 0; }; trap bye INT
 
 #------------------------{ First dialog - Select host }--------------------------------------------
 function first_dialog {

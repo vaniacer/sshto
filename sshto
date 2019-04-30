@@ -56,7 +56,7 @@ CON='\e[?25h' #Cursor On                                             |
 XY   () { printf "\e[${2};${1}H${3}";   } #                          |
 #--------------------------------------------------------------------+
 # Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
-line () { printf %.s"${1}" $(seq ${2}); } #                          |
+line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
 #--------------------------------------------------------------------+
 ;; esac
 
@@ -189,8 +189,8 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
 
         '#DUMMY') desc="${host%\#*}"; desc="${desc##*\#}"
                   name="{ $desc }"; line=$[ (40-${#name})/2 ]
-                  name=$(printf %.s- $(seq $line); printf "$name"; printf %.s- $(seq $line))
-                  [[ ${#name} -lt 40 ]] && name=-$name; desc=$(printf %.s- $(seq 20));;
+                  name=$( line - $line; printf  "$name"; line - $line )
+                  [[ ${#name} -lt 40 ]] && name=-$name ; desc=$(line - 20);;
 
     esac
 

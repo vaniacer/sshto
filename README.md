@@ -75,7 +75,7 @@ HostName 192.168.1.3
 Port 22
 User loser
 </pre>
-Script greps data from multiple config files via pattername <i>config*</i> in <i>~/.ssh</i> dir.<br>
+Script greps data from multiple config files via pattername <i>'config*'</i> in <i>~/.ssh</i> dir.<br>
 So you can split config to multiple files and use them with <i>Include</i> directive, example:
 <pre>
 Include config_moscow

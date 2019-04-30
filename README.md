@@ -8,7 +8,7 @@ Allows you to connect to your servers or run commands from menu. Available comma
 cmdlist=(
     #Command#  #Description#
     "ls  -la"  "List Files."
-    "free -m"  "Show free memory."
+    "free -h"  "Show free memory."
     "df  -ih"  "Show free inodes."
     "df   -h"  "Show free disk space."
     "top -n1"  "Show summary system information."

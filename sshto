@@ -119,14 +119,12 @@ copy_files() {
 local_port () {
     LOCAL=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                    --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
-    cmdlist_renew
 }
 
 #------------------------{ Change remote port for tunnelling }-------------------------------------
 remote_port () {
     REMOTE=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                     --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
-    cmdlist_renew
 }
 
 #------------------------{ Tunnelling command}-------------------------------------

@@ -1,19 +1,26 @@
 #!/bin/bash
 
+REMOTE=8080  # Remote port for tunneling.
+LOCAL=18080  # Local  port for tunneling.
+timer=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
+
 #Add your commands to this list
-cmdlist=(
+cmdlist_renew () { cmdlist=(
 	#Command#  #Description#
 	"ls  -la"  "List Files."
 	"free -h"  "Show free memory."
 	"df  -ih"  "Show free inodes."
 	"df   -h"  "Show free disk space."
-	"top -n1"  "Show summary system information."
 	""         ""
-    "info"     "Full system info."
-    "copy"     "Copy selected file or dir."
-	"sshkey"   "Add my ssh key to this server."
-	"alias"    "Add my usefull aliases to this server."
-)
+    "Info"     "Full system info."
+    "Copy"     "Copy selected file or dir."
+	"Sshkey"   "Add my ssh key to this server."
+	"Alias"    "Add my usefull aliases to this server."
+	""         ""
+    "Local"    "Change local  port $LOCAL"
+    "Remote"   "Change remote port $REMOTE"
+    "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
+); }
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || { if [ $(uname -s) == "Darwin" ]; then
                             # Use `brew install` if MacOS Detected
@@ -23,8 +30,6 @@ dialog &> /dev/null || { if [ $(uname -s) == "Darwin" ]; then
                          fi
                          exit 1; }
 
-#------------------------{ Add some colors }---------------------------------------------
-case $TERM in *term*)
 #--------------------------------------------------------------------+
 #Color picker, usage: printf ${BLD}${CUR}${RED}${BBLU}"Hello!)"${DEF}|
 #-------------------------+--------------------------------+---------+
@@ -58,17 +63,16 @@ XY   () { printf "\e[${2};${1}H${3}";   } #                          |
 # Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
 #--------------------------------------------------------------------+
-;; esac
 
 #------------------------{ Pause function }--------------------------------------------------------
-function pause {
+pause () {
     printf "\n${BLD}"
     read -p 'press any key to continue'
     printf "\n${DEF}"
 }
 
 #------------------------{ System Info commands }--------------------------------------------------
-function system_info {
+system_info () {
     clear
     ssh $target "
         printf '\n${BLD}Hostname:${DEF}\n'
@@ -106,13 +110,31 @@ function system_info {
 }
 
 #------------------------{ Copy selected file to server }------------------------------------------
-function copy_files {
+copy_files() {
     filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
     scp -r $filename $target:~
 }
 
+#------------------------{ Change local port for tunnelling }--------------------------------------
+local_port () {
+    LOCAL=$(dialog --output-fd 1 --max-input 5 --aspect 100 --colors --inputbox 'Local port' 10 5 $LOCAL)
+    cmdlist_renew
+}
+
+#------------------------{ Change remote port for tunnelling }-------------------------------------
+remote_port () {
+    REMOTE=$(dialog --output-fd 1 --max-input 5 --aspect 100 --colors --inputbox 'Remote port' 10 5 $REMOTE)
+    cmdlist_renew
+}
+
+#------------------------{ Tunnelling command}-------------------------------------
+portunneling () {
+    ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer
+    clear; sleep 1
+}
+
 #------------------------{ Yes to ssh }------------------------------------------------------------
-function ssh_yes () {
+ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.
 # Expect must be installed on server. Options:
 #   $1 - ssh address with parameters(if needed)
@@ -137,19 +159,19 @@ EOF
 }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-function add_sshkey { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
+add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
-function add_aliases { clear; scp ~/.bash_aliases $target:~; }
+add_aliases () { clear; scp ~/.bash_aliases $target:~; }
 
 #------------------------{Run command }------------------------------------------------------------
-function run_command { clear; ssh -t $target $command; sleep 3; }
+run_command () { clear; ssh -t $target $command; sleep 3; }
 
 #------------------------{ Exit function }---------------------------------------------------------
-function bye { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto; fi; exit 0; }; trap bye INT
+bye () { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto; fi; exit 0; }; trap bye INT
 
 #------------------------{ First dialog - Select host }--------------------------------------------
-function first_dialog {
+first_dialog () {
 	target=$(dialog --output-fd 1 \
 					--extra-button --extra-label "RUN COMMAND" \
 					--ok-label "CONNECT" --cancel-label "EXIT" \
@@ -162,7 +184,8 @@ function first_dialog {
 }
 
 #------------------------{ Second dialog - Select command }----------------------------------------
-function second_dialog {
+second_dialog () {
+    cmdlist_renew
 	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" \
                      --extra-button --extra-label "CONNECT" --colors --aspect 100 \
                      --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
@@ -170,12 +193,15 @@ function second_dialog {
 	case $? in 3) clear; ssh $target; second_dialog;; esac
 
 	case $command in
-		"sshkey") add_sshkey  ; second_dialog;;
-		"alias" ) add_aliases ; second_dialog;;
-        "info"  ) system_info ; second_dialog;;
-        "copy"  ) copy_files  ; second_dialog;;
-		""      ) first_dialog;;
-		*       ) run_command ; second_dialog;;
+		"Sshkey" ) add_sshkey  ; second_dialog;;
+		"Alias"  ) add_aliases ; second_dialog;;
+        "Info"   ) system_info ; second_dialog;;
+        "Copy"   ) copy_files  ; second_dialog;;
+        "Local"  ) local_port  ; second_dialog;;
+        "Remote" ) remote_port ; second_dialog;;
+        "Tunnel" ) portunneling; second_dialog;;
+		""       ) first_dialog;;
+		*        ) run_command ; second_dialog;;
 	esac
 }
 

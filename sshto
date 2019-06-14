@@ -117,13 +117,15 @@ copy_files() {
 
 #------------------------{ Change local port for tunnelling }--------------------------------------
 local_port () {
-    LOCAL=$(dialog --output-fd 1 --max-input 5 --aspect 100 --colors --inputbox 'Local port' 10 5 $LOCAL)
+    LOCAL=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+                   --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
     cmdlist_renew
 }
 
 #------------------------{ Change remote port for tunnelling }-------------------------------------
 remote_port () {
-    REMOTE=$(dialog --output-fd 1 --max-input 5 --aspect 100 --colors --inputbox 'Remote port' 10 5 $REMOTE)
+    REMOTE=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+                    --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     cmdlist_renew
 }
 

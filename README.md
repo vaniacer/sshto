@@ -9,17 +9,17 @@ Allows you to connect to your servers or run commands from menu. Available comma
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
 cmdlist_renew () { cmdlist=(
-	#Command#  #Description#
-	"ls  -la"  "List Files."
-	"free -h"  "Show free memory."
-	"df  -ih"  "Show free inodes."
-	"df   -h"  "Show free disk space."
-	""         ""
+    #Command#  #Description#
+    "ls  -la"  "List Files."
+    "free -h"  "Show free memory."
+    "df  -ih"  "Show free inodes."
+    "df   -h"  "Show free disk space."
+    ""         ""
     "Info"     "Full system info."
     "Copy"     "Copy selected file or dir."
-	"Sshkey"   "Add my ssh key to this server."
-	"Alias"    "Add my usefull aliases to this server."
-	""         ""
+    "Sshkey"   "Add my ssh key to this server."
+    "Alias"    "Add my usefull aliases to this server."
+    ""         ""
     "Local"    "Change local  port $LOCAL"
     "Remote"   "Change remote port $REMOTE"
     "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"

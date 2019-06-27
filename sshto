@@ -172,8 +172,7 @@ bye () { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
 new_list () {
-    list=()
-    match=
+    list=(); match=
     for item in "${fullist[@]}"; {
         case "$item$match" in
             -*\ $filter\ *-) match=true;;
@@ -201,6 +200,7 @@ first_dialog () {
                     --help-button  --help-label  "CONTENTS"    \
 					--ok-label "CONNECT" --cancel-label "EXIT" \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
+
 	case $target:$? in
 		 *:0) clear; ssh $target;;
          *:2) contents_menu;;

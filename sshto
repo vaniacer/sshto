@@ -58,7 +58,7 @@ COF='\e[?25l' #Cursor Off                                            |
 CON='\e[?25h' #Cursor On                                             |
 #--------------------------------------------------------------------+
 # Text positioning, usage: XY 10 10 "Hello World!"                   |
-XY   () { printf "\e[${2};${1}H${3}";   } #                          |
+XY   () { printf "\e[${2};${1}H${3}"; } #                            |
 #--------------------------------------------------------------------+
 # Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |

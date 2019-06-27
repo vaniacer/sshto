@@ -22,13 +22,12 @@ cmdlist_renew () { cmdlist=(
     "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
 ); }
 #------------------------{ Check if dialog installed }---------------------------------------------
-dialog &> /dev/null || { if [ $(uname -s) == "Darwin" ]; then
-                            # Use `brew install` if MacOS Detected
-                            printf "\nInstall dialog\nbrew install -y dialog"
-                         else
-                            printf "\nInstall dialog\nsudo apt-get install -y dialog"
-                         fi
-                         exit 1; }
+dialog &> /dev/null || {
+    [[ $(uname -s) == "Darwin" ]] \
+        && printf "\nInstall dialog\nbrew install -y dialog" \
+        || printf "\nInstall dialog\nsudo apt-get install -y dialog"
+    exit 1
+}
 
 #--------------------------------------------------------------------+
 #Color picker, usage: printf ${BLD}${CUR}${RED}${BBLU}"Hello!)"${DEF}|
@@ -168,7 +167,7 @@ add_aliases () { clear; scp ~/.bash_aliases $target:~; }
 run_command () { clear; ssh -t $target $command; sleep 3; }
 
 #------------------------{ Exit function }---------------------------------------------------------
-bye () { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto; fi; exit 0; }; trap bye INT
+bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
 new_list () {
@@ -184,7 +183,7 @@ new_list () {
 
 contents_menu () {
 	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
-                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
+                    --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 
 	case $filter in
 		"" ) first_dialog;;
@@ -240,7 +239,7 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
     case $name in
 
         '#DUMMY') desc="${host%\#*}"; desc="${desc##*\#}"
-                  name="{ $desc }"; content+=( "$desc" )
+                  name="{ $desc }";  content+=( "$desc" )
                   line=$[ (40-${#name})/2 ]
                   name=$( line - $line; printf  "$name"; line - $line )
                   [[ ${#name} -lt 40 ]] && name=-$name ; desc=$(line - 20);;

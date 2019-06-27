@@ -17,9 +17,9 @@ cmdlist_renew () { cmdlist=(
 	"Sshkey"   "Add my ssh key to this server."
 	"Alias"    "Add my usefull aliases to this server."
 	""         ""
-    "Local"    "Change local  port $LOCAL"
-    "Remote"   "Change remote port $REMOTE"
-    "Tunnel"   "Start portunneling from \Z4$target\Z0 port $REMOTE to local port $LOCAL"
+    "Local"    "Change local  port \Z1$LOCAL\Z0"
+    "Remote"   "Change remote port \Z1$REMOTE\Z0"
+    "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
 ); }
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {

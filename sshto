@@ -164,20 +164,46 @@ add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
 #------------------------{ Add aliases }-----------------------------------------------------------
 add_aliases () { clear; scp ~/.bash_aliases $target:~; }
 
-#------------------------{Run command }------------------------------------------------------------
+#------------------------{ Run command }-----------------------------------------------------------
 run_command () { clear; ssh -t $target $command; sleep 3; }
 
 #------------------------{ Exit function }---------------------------------------------------------
 bye () { clear; if [ $(uname -s) == "Darwin" ]; then ls -G; else ls --color=auto; fi; exit 0; }; trap bye INT
 
+#------------------------{ Switch menu mode to contents view or full list }------------------------
+new_list () {
+    list=()
+    match=
+    for item in "${fullist[@]}"; {
+        case "$item$match" in
+            -*\ $filter\ *-) match=true;;
+            -*\ *\ *-true  ) break;;
+        esac
+        [[ $match ]] && list+=( "$item" )
+    }
+}
+
+contents_menu () {
+	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
+                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
+
+	case $filter in
+		"" ) first_dialog;;
+        All) list=( "${fullist[@]}" ); first_dialog;;
+        *  ) new_list; first_dialog;;
+	esac
+}
+
 #------------------------{ First dialog - Select host }--------------------------------------------
 first_dialog () {
 	target=$(dialog --output-fd 1 \
 					--extra-button --extra-label "RUN COMMAND" \
+                    --help-button  --help-label  "CONTENTS"    \
 					--ok-label "CONNECT" --cancel-label "EXIT" \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
 	case $target:$? in
 		 *:0) clear; ssh $target;;
+         *:2) contents_menu;;
 		 *:3) second_dialog;;
 		"":*) bye;;
 	esac
@@ -214,15 +240,16 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
     case $name in
 
         '#DUMMY') desc="${host%\#*}"; desc="${desc##*\#}"
-                  name="{ $desc }"; line=$[ (40-${#name})/2 ]
+                  name="{ $desc }"; content+=( "$desc" )
+                  line=$[ (40-${#name})/2 ]
                   name=$( line - $line; printf  "$name"; line - $line )
                   [[ ${#name} -lt 40 ]] && name=-$name ; desc=$(line - 20);;
 
     esac
 
-    list+=( "$name" "$desc" ) #Add HostName and Description to the list
+    fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
 
-done; IFS=$IFSOLD
+done; IFS=$IFSOLD; list=( "${fullist[@]}" )
 
 #--{ Go baby, GO!) }--
 first_dialog; bye

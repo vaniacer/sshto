@@ -19,7 +19,7 @@ cmdlist_renew () { cmdlist=(
 	""         ""
     "Local"    "Change local  port $LOCAL"
     "Remote"   "Change remote port $REMOTE"
-    "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
+    "Tunnel"   "Start portunneling from \Z4$target\Z0 port $REMOTE to local port $LOCAL"
 ); }
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {
@@ -213,7 +213,7 @@ second_dialog () {
     cmdlist_renew
 	command=$(dialog --output-fd 1 --ok-label "RUN" --cancel-label "BACK" \
                      --extra-button --extra-label "CONNECT" --colors --aspect 100 \
-                     --menu "Select command to run on host \"\Z4$target\Z0\":" 0 0 0 "${cmdlist[@]}")
+                     --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
 
 	case $? in 3) clear; ssh $target; second_dialog;; esac
 

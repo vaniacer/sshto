@@ -63,12 +63,29 @@ XY   () { printf "\e[${2};${1}H${3}"; } #                            |
 # Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
 #--------------------------------------------------------------------+
-
-#------------------------{ Pause function }--------------------------------------------------------
-pause () {
-    printf "\n${BLD}"
-    read -p 'press any key to continue'
-    printf "\n${DEF}"
+#------------------------{ Yes to ssh }------------------------------+
+ssh_yes () {
+# If connecting first time send 'yes' on ssh's request.
+# Expect must be installed on server. Options:
+#   $1 - ssh address with parameters(if needed)
+#
+# Usage example:
+#   ssh_yes "-p22 user@localhost"
+expect << EOF
+spawn ssh $1
+expect {
+    "(yes/no)?" {
+        send "yes\n"
+        expect {
+            "assword:" { exit }
+            "$ "       { send "exit\n" }
+        }
+    }
+    "assword:" { exit }
+    "$ "       { send "exit\n" }
+}
+exit
+EOF
 }
 
 #------------------------{ System Info commands }--------------------------------------------------
@@ -109,6 +126,13 @@ system_info () {
     pause
 }
 
+#------------------------{ Pause function }--------------------------------------------------------
+pause () {
+    printf "\n${BLD}"
+    read -p 'press any key to continue'
+    printf "\n${DEF}"
+}
+
 #------------------------{ Copy selected file to server }------------------------------------------
 copy_files() {
     filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
@@ -117,68 +141,48 @@ copy_files() {
 
 #------------------------{ Change local port for tunnelling }--------------------------------------
 local_port () {
-    LOCAL=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                   --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
+    new_local=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+                       --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
+    LOCAL=${new_local:-$LOCAL}
 }
 
 #------------------------{ Change remote port for tunnelling }-------------------------------------
 remote_port () {
-    REMOTE=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                    --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
+    new_remote=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+                        --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
+    REMOTE=${new_remote:-$REMOTE}
 }
 
-#------------------------{ Tunnelling command}-------------------------------------
-portunneling () {
-    ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer
-    clear; sleep 1
-}
-
-#------------------------{ Yes to ssh }------------------------------------------------------------
-ssh_yes () {
-# If connecting first time send 'yes' on ssh's request.
-# Expect must be installed on server. Options:
-#   $1 - ssh address with parameters(if needed)
-#
-# Usage example:
-#   ssh_yes "-p22 user@localhost"
-expect << EOF
-spawn ssh $1
-expect {
-    "(yes/no)?" {
-        send "yes\n"
-        expect {
-            "assword:" { exit }
-            "$ "       { send "exit\n" }
-        }
-    }
-    "assword:" { exit }
-    "$ "       { send "exit\n" }
-}
-exit
-EOF
-}
-
-#------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
+#------------------------{ SSH to target server }--------------------------------------------------
+go_to_target () { clear; ssh $target; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
 add_aliases () { clear; scp ~/.bash_aliases $target:~; }
 
 #------------------------{ Run command }-----------------------------------------------------------
-run_command () { clear; ssh -t $target $command; sleep 3; }
+run_command () { clear; ssh -t $target $command; pause; }
+
+#------------------------{ Add ssh key }-----------------------------------------------------------
+add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
+
+#------------------------{ Tunnelling command}-----------------------------------------------------
+portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer; }
 
 #------------------------{ Exit function }---------------------------------------------------------
 bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
 new_list () {
+
     list=(); match=
     for item in "${fullist[@]}"; {
-        case "$item$match" in
-            -*\ $filter\ *-) match=true;;
-            -*\ *\ *-true  ) break;;
+
+        case         $item:$match in
+                 -*\ *\ *-:1) break  ;;
+           -*\ $filter\ *-:*) match=1;;
         esac
         [[ $match ]] && list+=( "$item" )
+
     }
 }
 
@@ -186,11 +190,10 @@ contents_menu () {
 	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 
-	case $filter in
-		"" ) first_dialog;;
-        All) list=( "${fullist[@]}" ); first_dialog;;
-        *  ) new_list; first_dialog;;
-	esac
+	case $filter:$? in
+             All:0) list=( "${fullist[@]}" );;
+               *:0) new_list;;
+	esac;           first_dialog
 }
 
 #------------------------{ First dialog - Select host }--------------------------------------------
@@ -202,11 +205,12 @@ first_dialog () {
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
 
 	case $target:$? in
-		 *:0) clear; ssh $target;;
-         *:2) contents_menu;;
-		 *:3) second_dialog;;
-		"":*) bye;;
-	esac
+       -*\ *\ *-:*) first_dialog ;;
+               *:0) go_to_target  ; first_dialog;;
+               *:2) contents_menu;;
+      	       *:3) second_dialog;;
+      	       *:*) bye;;
+  	esac
 }
 
 #------------------------{ Second dialog - Select command }----------------------------------------
@@ -216,19 +220,18 @@ second_dialog () {
                      --extra-button --extra-label "CONNECT" --colors --aspect 100 \
                      --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
 
-	case $? in 3) clear; ssh $target; second_dialog;; esac
-
-	case $command in
-		"Sshkey" ) add_sshkey  ; second_dialog;;
-		"Alias"  ) add_aliases ; second_dialog;;
-        "Info"   ) system_info ; second_dialog;;
-        "Copy"   ) copy_files  ; second_dialog;;
-        "Local"  ) local_port  ; second_dialog;;
-        "Remote" ) remote_port ; second_dialog;;
-        "Tunnel" ) portunneling; second_dialog;;
-		""       ) first_dialog;;
-		*        ) run_command ; second_dialog;;
-	esac
+	case $command:$? in
+           Sshkey:*) add_sshkey  ;;
+            Alias:*) add_aliases ;;
+             Info:*) system_info ;;
+             Copy:*) copy_files  ;;
+            Local:*) local_port  ;;
+           Remote:*) remote_port ;;
+           Tunnel:*) portunneling;;
+                *:3) go_to_target;;
+                *:0) run_command ;;
+                *:*) first_dialog;;
+	esac;            second_dialog
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
@@ -237,13 +240,12 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description
 
-    case $name in
+    case $name in '#DUMMY')
 
-        '#DUMMY') desc="${host%\#*}"; desc="${desc##*\#}"
-                  name="{ $desc }";  content+=( "$desc" )
-                  line=$[ (40-${#name})/2 ]
-                  name=$( line - $line; printf  "$name"; line - $line )
-                  [[ ${#name} -lt 40 ]] && name=-$name ; desc=$(line - 20);;
+        desc="${host%\#*}"; desc="${desc##*\#}"
+        name="{ $desc }";   line=$[ (40-${#name})/2 ]
+        name=$( line - $line; printf  "$name"; line - $line )
+        [[ ${#name} -lt 40 ]] && name=-$name ; content+=( "$desc" ); desc=$(line - 20);;
 
     esac
 

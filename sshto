@@ -242,9 +242,9 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
 
     case $name in '#DUMMY')
 
-        desc="${host%\#*}"  ; desc="${desc##*\#}"
-        name="{ $desc }"    ; line=$[ (40-${#name})/2 ]
-        name=$( line - $line; printf  "$name"; line - $line )
+        desc="${host%\#*}"    ; desc="${desc##*\#}"
+        name="{ $desc }"      ; length=$[ (40-${#name})/2 ]
+        name=$( line - $length; printf  "$name"; line - $length )
         [[ ${#name} -lt 40 ]] && name=-$name ; content+=( "$desc" ); desc=$(line - 20);;
 
     esac

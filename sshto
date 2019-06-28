@@ -96,7 +96,7 @@ system_info () {
         hostname
 
         printf '\n${BLD}Interfaces:${DEF}\n'
-        ip a | grep 'inet ' | sed '/127.0.0.1/d; s/.*inet //g; s|/.*$||g'
+        ip -br a | grep -v 127.0.0.1
 
         printf '\n${BLD}Memory:${DEF}\n'
         LANG=Us free --si -h
@@ -184,7 +184,6 @@ new_list () {
            -*\ $filter\ *-:*) match=1;;
         esac
         [[ $match ]] && list+=( "$item" )
-
     }
 }
 
@@ -202,8 +201,8 @@ contents_menu () {
 first_dialog () {
 	target=$(dialog --output-fd 1 \
 					--extra-button --extra-label "RUN COMMAND" \
-                    --help-button  --help-label  "CONTENTS"    \
 					--ok-label "CONNECT" --cancel-label "EXIT" \
+                    --help-button     --help-label  "CONTENTS" \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
 
 	case $target:$? in

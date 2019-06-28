@@ -133,6 +133,26 @@ pause () {
     printf "\n${DEF}"
 }
 
+#------------------------{ SSH to target server }--------------------------------------------------
+go_to_target () { clear; ssh $target; }
+
+#------------------------{ Add aliases }-----------------------------------------------------------
+add_aliases () { clear; scp ~/.bash_aliases $target:~; }
+
+#------------------------{ Run command }-----------------------------------------------------------
+run_command () { clear; ssh -t $target $command; pause; }
+
+#------------------------{ Add ssh key }-----------------------------------------------------------
+add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
+
+#------------------------{ Tunnelling command}-----------------------------------------------------
+portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer; }
+
+#------------------------{ Exit function }---------------------------------------------------------
+bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
+
+
+#------------------------------{ Dialog functions }------------------------------------------------
 #------------------------{ Copy selected file to server }------------------------------------------
 copy_files() {
     filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
@@ -152,24 +172,6 @@ remote_port () {
                         --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
 }
-
-#------------------------{ SSH to target server }--------------------------------------------------
-go_to_target () { clear; ssh $target; }
-
-#------------------------{ Add aliases }-----------------------------------------------------------
-add_aliases () { clear; scp ~/.bash_aliases $target:~; }
-
-#------------------------{ Run command }-----------------------------------------------------------
-run_command () { clear; ssh -t $target $command; pause; }
-
-#------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
-
-#------------------------{ Tunnelling command}-----------------------------------------------------
-portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer; }
-
-#------------------------{ Exit function }---------------------------------------------------------
-bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
 new_list () {

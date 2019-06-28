@@ -236,7 +236,7 @@ second_dialog () {
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/d; s/Host //g;'); do
+IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/d; s/Host //g;'); {
 
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description
@@ -252,7 +252,7 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
 
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
 
-done; IFS=$IFSOLD; list=( "${fullist[@]}" )
+}; IFS=$IFSOLD; list=( "${fullist[@]}" )
 
 #--{ Go baby, GO!) }--
 first_dialog; bye

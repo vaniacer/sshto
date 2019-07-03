@@ -222,13 +222,13 @@ second_dialog () {
                      --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
 
 	case $command:$? in
-           Sshkey:*) add_sshkey  ;;
-            Alias:*) add_aliases ;;
-             Info:*) system_info ;;
-             Copy:*) copy_files  ;;
-            Local:*) local_port  ;;
-           Remote:*) remote_port ;;
-           Tunnel:*) portunneling;;
+           Sshkey:0) add_sshkey  ;;
+            Alias:0) add_aliases ;;
+             Info:0) system_info ;;
+             Copy:0) copy_files  ;;
+            Local:0) local_port  ;;
+           Remote:0) remote_port ;;
+           Tunnel:0) portunneling;;
                 *:3) go_to_target;;
                 *:0) run_command ;;
                 *:*) first_dialog;;

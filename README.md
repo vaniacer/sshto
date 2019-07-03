@@ -75,3 +75,6 @@ Include config_moscow
 Include config_rybinsk
 Include config*
 </pre>
+
+<a href="https://asciinema.org/a/YGh7SDX09lhcDElQWNPoKVh2O">See how it works at asciinema</a></br>
+

@@ -76,5 +76,10 @@ Include config_rybinsk
 Include config*
 </pre>
 
+You can customize dialog colors by creating a config file:
+<pre>
+dialog --create-rc ~/.dialogrc
+</pre>
+
 <a href="https://asciinema.org/a/YGh7SDX09lhcDElQWNPoKVh2O">See how it works at asciinema</a></br>
 

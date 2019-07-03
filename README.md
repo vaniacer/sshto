@@ -1,10 +1,10 @@
 # sshto
 
 Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/60570512-69e99f00-9d7a-11e9-9634-2945aded2728.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/60570512-69e99f00-9d7a-11e9-9634-2945aded2728.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>

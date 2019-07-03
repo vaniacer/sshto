@@ -1,10 +1,10 @@
 # sshto
 
 Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/50471000-ea8ea380-09c3-11e9-9217-d34a7300ad85.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/60570512-69e99f00-9d7a-11e9-9634-2945aded2728.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/59601820-d70bfc00-910d-11e9-8e6d-d36622cf8335.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
@@ -48,37 +48,25 @@ Start menu delimiters '---{ TEXT }---' can be added like this:</br>
 <pre>
 #Host DUMMY #Rybinsk#
 
-Host server1 #First server
-HostName 192.168.0.1
-Port 22
-User admin
+Host rybserver1 #First server
+HostName localhost
 
-Host server2 #Second server
-HostName 192.168.0.2
-Port 22
-User user
+Host rybserver2 #Second server
+HostName localhost
 
-Host server3 #Third server
-HostName 192.168.0.3
-Port 22
-User loser
+Host rybserver3 #Third server
+HostName localhost
 
 #Host DUMMY #Moscow#
 
-Host server1 #First server
-HostName 192.168.1.1
-Port 22
-User admin
+Host moserver1 #First server
+HostName localhost
 
-Host server2 #Second server
-HostName 192.168.1.2
-Port 22
-User user
+Host moserver2 #Second server
+HostName localhost
 
-Host server3 #Third server
-HostName 192.168.1.3
-Port 22
-User loser
+Host moserver3 #Third server
+HostName localhost
 </pre>
 Script greps data from multiple config files via pattername <i>'config*'</i> in <i>~/.ssh</i> dir.<br>
 So you can split config to multiple files and use them with <i>Include</i> directive, example:

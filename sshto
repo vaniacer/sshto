@@ -96,7 +96,7 @@ system_info () {
         hostname
 
         printf '\n${BLD}Interfaces:${DEF}\n'
-        ip -br a | grep -v 127.0.0.1
+        ip a
 
         printf '\n${BLD}Memory:${DEF}\n'
         LANG=Us free --si -h
@@ -199,10 +199,9 @@ contents_menu () {
 
 #------------------------{ First dialog - Select host }--------------------------------------------
 first_dialog () {
-	target=$(dialog --output-fd 1 --colors \
-					--extra-button --extra-label "RUN COMMAND" \
-					--ok-label "CONNECT" --cancel-label "EXIT" \
-                    --help-button     --help-label  "CONTENTS" \
+	target=$(dialog --extra-button --extra-label "RUN COMMAND"         \
+					--ok-label "CONNECT" --cancel-label "EXIT" --colors \
+                    --help-button --help-label  "CONTENTS" --output-fd 1 \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
 
 	case $target:$? in
@@ -218,7 +217,7 @@ first_dialog () {
 second_dialog () {
     cmdlist_renew
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 \
-                     --extra-button    --extra-label "CONNECT" --colors   \
+                     --extra-button    --extra-label "CONNECT" --colors    \
                      --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
 
 	case $command:$? in

@@ -22,6 +22,9 @@ cmdlist_renew () { cmdlist=(
     "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
 ); }
 
+confile=~/.gtrc
+[[ -e $confile ]] . $confile
+
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {
     [[ $(uname -s) == "Darwin" ]] \

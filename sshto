@@ -155,7 +155,7 @@ bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 
 #------------------------------{ Dialog functions }------------------------------------------------
 #------------------------{ Copy selected file to server }------------------------------------------
 copy_files() {
-    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect ./ 10 80)
+    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect $PWD 10 80)
     scp -r $filename $target:~
 }
 

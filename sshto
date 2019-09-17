@@ -23,7 +23,7 @@ cmdlist_renew () { cmdlist=(
 ); }
 
 confile=~/.gtrc
-[[ -e $confile ]] . $confile
+[[ -e $confile ]] && . $confile
 
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {

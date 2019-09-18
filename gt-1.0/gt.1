@@ -24,12 +24,12 @@ cmdlist_renew () { cmdlist=(
     "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
 ); }
 
+Or override this list and $LOCAL|$REMOTE|$timer vars in confilie ~/.gtrc
+
 First collumn - command, second - description.
 Simple commands like 'ls -la' can be added as is.
 A list of commands or a coplicated logic add via function.
 Empty string is used as a delimiter.
-
-Or override this list and $LOCAL|$REMOTE|$timer vars in confilie ~/.gtrc
 
 Hosts description needs to be added like this:
 Host server1 #DESCRIPTION

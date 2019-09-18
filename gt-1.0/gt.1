@@ -1,0 +1,49 @@
+.TH "gt-1.0" "1" "September 2019" "gt-1.0" "User manual"
+.SH NAME
+gt-1.0 \- BASH script to manage your ssh connections.
+.SH DESCRIPTION
+GT stands for Go To some server via SSH.
+It builds menu (via dialog) from your ~/.ssh/config.
+Can run commands, copy files, tunnel ports and connect.
+Your commands can be easily added to this list. Just edit this part of the script:
+
+cmdlist_renew () { cmdlist=(
+    #Command#  #Description#
+    "ls  -la"  "List Files."
+    "free -h"  "Show free memory."
+    "df  -ih"  "Show free inodes."
+    "df   -h"  "Show free disk space."
+    ""         ""
+    "Info"     "Full system info."
+    "Copy"     "Copy selected file or dir."
+    "Sshkey"   "Add my ssh key to this server."
+    "Alias"    "Add my usefull aliases to this server."
+    ""         ""
+    "Local"    "Change local  port $LOCAL"
+    "Remote"   "Change remote port $REMOTE"
+    "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
+); }
+
+First collumn - command, second - description.
+Simple commands like 'ls -la' can be added as is.
+A list of commands or a coplicated logic add via function.
+Empty string is used as a delimiter.
+You can quick jump to the selected server via CONNECT button.
+When you done press ^D it'll bring you back to sshto commands section.
+
+Hosts description needs to be added like this:
+Host server1 #DESCRIPTION
+HostName 192.168.0.1
+Port 22
+User admin
+
+Start menu delimiters '---{ TEXT }---' can be added like this:
+#Host DUMMY #TEXT#
+
+You can customize dialog colors by creating a config file:
+dialog --create-rc ~/.dialogrc
+
+.SH AUTHOR
+Ivan Marov <ie.marov@gmail.com>
+.SH GITHUB
+https://github.com/vaniacer/sshto

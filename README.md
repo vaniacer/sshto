@@ -27,7 +27,7 @@ cmdlist_renew () { cmdlist=(
 </pre>
 First collumn - command, second - description.</br>
 Simple commands like 'ls -la' can be added as is.</br>
-A list of commands or a coplicated logic add via function.</br>
+A list of commands or a complicated logic better add via function.</br>
 Empty string is used as a delimiter.</br>
 You can quick jump to the selected server via <i>CONNECT</i> button.</br>
 When you done press ^D it'll bring you back to <i>sshto</i> commands section.</br>

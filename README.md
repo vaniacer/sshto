@@ -81,5 +81,5 @@ You can customize dialog colors by creating a config file:
 dialog --create-rc ~/.dialogrc
 </pre>
 
-<a href="https://asciinema.org/a/YGh7SDX09lhcDElQWNPoKVh2O">See how it works at asciinema</a></br>
+<a href="https://asciinema.org/a/PQMuRvfmxlHUc4oZMN76LY2V4">See how it works at asciinema</a></br>
 

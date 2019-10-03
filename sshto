@@ -153,9 +153,9 @@ bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 
 
 #------------------------------{ Dialog functions }------------------------------------------------
 #------------------------{ Copy selected file to server }------------------------------------------
-copy_files() {
-    filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
-    scp -r $filename $target:~
+copy_files() { filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
+       case   $filename in $PWD|$PWD/) return;; esac
+       scp -r $filename $target:~
 }
 
 #------------------------{ Change local port for tunnelling }--------------------------------------

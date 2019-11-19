@@ -23,7 +23,9 @@ cmdlist_renew () { cmdlist=(
 ); }
 
 confile=~/.gtrc
+tmpfile=/tmp/gtrc
 [[ -e $confile ]] && . $confile
+[[ -e $tmpfile ]] && . $tmpfile
 
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {
@@ -174,7 +176,6 @@ remote_port () {
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
 new_list () {
-
     list=(); match=
     for item in "${fullist[@]}"; {
 
@@ -184,6 +185,7 @@ new_list () {
         esac
         [[ $match ]] && list+=( "$item" )
     }
+    echo "filter='$filter'" > $tmpfile
 }
 
 contents_menu () {
@@ -250,7 +252,9 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
 
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
 
-}; IFS=$IFSOLD; list=( "${fullist[@]}" )
+}; IFS=$IFSOLD
+list=( "${fullist[@]}" )
+[[ $filter ]] && new_list
 
 #--{ Go baby, GO!) }--
 first_dialog; bye

@@ -185,13 +185,14 @@ downpath () {
     DOWNLOAD=${new_path:-$DOWNLOAD}
 }
 
-download () {
-    filelist=( $(ssh $target ls -sh1 $DOWNLOAD | awk '{print $2,$1}') ) || second_dialog
+dlst () { filelist=( $(ssh $target ls -sh1 $DOWNLOAD | awk '{print $2,$1}') ) || second_dialog; }
+down () {
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
-
-	[[ $filename ]] && scp -r $target:$DOWNLOAD/$filename .
-	second_dialog
+	case $filename:$? in
+                 *:0) [[ $filename ]] && scp -r $target:$DOWNLOAD/$filename .;;
+                 *:*) second_dialog;;
+	esac;             down
 }
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
@@ -247,7 +248,7 @@ second_dialog () {
              Info:0) system_info ;;
              Copy:0) copy_files  ;;
              Path:0) downpath    ;;
-         Download:0) download    ;;
+         Download:0) dlst; down  ;;
             Local:0) local_port  ;;
            Remote:0) remote_port ;;
            Tunnel:0) portunneling;;

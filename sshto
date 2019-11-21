@@ -186,9 +186,9 @@ downpath () {
 }
 
 download () {
-    filelist=( $(ssh $target ls $DOWNLOAD) ) || second_dialog
+    filelist=( $(ssh $target ls -sh1 $DOWNLOAD | awk '{print $2,$1}') ) || second_dialog
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
-                    --no-items --menu "Select file\folder to download:" 0 0 0 "${filelist[@]}")
+                      --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 
 	[[ $filename ]] && scp -r $target:$DOWNLOAD/$filename .
 	second_dialog

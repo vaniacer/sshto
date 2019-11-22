@@ -4,28 +4,29 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/69339933-77df8400-0c77-11ea-9949-fdd032d738cd.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/69423507-51811d80-0d37-11ea-9628-333d18491aac.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
 cmdlist_renew () { cmdlist=(
-    #Command#  #Description#
-    "ls  -la"  "List Files."
-    "free -h"  "Show free memory."
-    "df  -ih"  "Show free inodes."
-    "df   -h"  "Show free disk space."
-    ""         ""
-    "Info"     "Full system info."
-    "Copy"     "Copy selected file or dir."
-    "Sshkey"   "Add my ssh key to this server."
-    "Alias"    "Add my usefull aliases to this server."
-    ""         ""
-    "Path"     "Change download folder $DOWNLOAD"
-    "Download" "Download file or folder from $target:$DOWNLOAD to $PWD"
-	""         ""
+	#Command#  #Description#
+	"ls  -la"  "List Files"
+	"free -h"  "Show free memory"
+	"df  -ih"  "Show free inodes"
+	"df   -h"  "Show free disk space"
+    ''         ''
+    "Info"     "Full system info"
+	"Sshkey"   "Add my ssh key to $target"
+	"Alias"    "Add my usefull aliases to $target"
+    "Copy"     "Copy selected file or dir to $target"
+    ''         ''
+    "Upload"   "Upload file or folder from $PWD to $target:$DEST"
+    "Dest"     "Change destination folder $DEST on $target"
+    "Download" "Download file or folder from $target:$DEST to $PWD"
+    ''         ''
     "Local"    "Change local  port $LOCAL"
     "Remote"   "Change remote port $REMOTE"
-    "Tunnel"   "Start portunneling from $target's port $REMOTE to local port $LOCAL"
+    "Tunnel"   "Start portunneling from $target port $REMOTE to local port $LOCAL"
 ); }
 </pre>
 First collumn - command, second - description.</br>

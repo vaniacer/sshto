@@ -1,26 +1,27 @@
 #!/bin/bash
 
-REMOTE=8080      # Remote port for tunneling.
-LOCAL=18080      # Local  port for tunneling.
-DOWNLOAD=/backup # Path on target server from where the files will be downloaded.
-timer=60         # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
+REMOTE=8080  # Remote port for tunneling.
+LOCAL=18080  # Local  port for tunneling.
+DEST='~'     # Destination folder on target server to download\upload files.
+timer=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(
 	#Command#  #Description#
-	"ls  -la"  "List Files."
-	"free -h"  "Show free memory."
-	"df  -ih"  "Show free inodes."
-	"df   -h"  "Show free disk space."
-	""         ""
-    "Info"     "Full system info."
-    "Copy"     "Copy selected file or dir."
-	"Sshkey"   "Add my ssh key to this server."
-	"Alias"    "Add my usefull aliases to this server."
-	""         ""
-    "Path"     "Change download folder \Z4$DOWNLOAD\Z0"
-    "Download" "Download file or folder from \Z4$target:${DOWNLOAD}\Z0 to \Z4$PWD\Z0"
-	""         ""
+	"ls  -la"  "List Files"
+	"free -h"  "Show free memory"
+	"df  -ih"  "Show free inodes"
+	"df   -h"  "Show free disk space"
+    ''         ''
+    "Info"     "Full system info"
+	"Sshkey"   "Add my ssh key to \Z4$target\Z0"
+	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
+    "Copy"     "Copy selected file or dir to \Z4$target\Z0"
+    ''         ''
+    "Upload"   "Upload file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
+    "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
+    ''         ''
     "Local"    "Change local  port \Z1$LOCAL\Z0"
     "Remote"   "Change remote port \Z1$REMOTE\Z0"
     "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
@@ -182,19 +183,29 @@ remote_port () {
     REMOTE=${new_remote:-$REMOTE}
 }
 
-#------------------------{ Download dialogs }------------------------------------------------------
+#------------------------{ Upload\Download dialogs }-----------------------------------------------
 downpath () { 
     new_path=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 100 \
-                       --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DOWNLOAD)
-    DOWNLOAD=${new_path:-$DOWNLOAD}
+                       --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
+    DEST=${new_path:-$DEST}
 }
 
-dlst () { filelist=( $(ssh $target ls -sh1 $DOWNLOAD | awk '{print $2,$1}') ) || second_dialog; }
-down () {
-	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
+upload () {
+    filelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
+	filename=$(dialog --output-fd 1 --ok-label "DEST" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $target:$DOWNLOAD/$filename .;;
+                 *:0) [[ $filename ]] && scp -r $filename $target:$DEST/;;
+                 *:*) return;;
+	esac;             down
+}
+
+dlst () { filelist=( $(ssh $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
+down () {
+	filename=$(dialog --output-fd 1 --ok-label "DEST" --cancel-label "BACK" \
+                      --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
+	case $filename:$? in
+                 *:0) [[ $filename ]] && scp -r $target:$DEST/$filename .;;
                  *:*) return;;
 	esac;             down
 }
@@ -248,7 +259,8 @@ second_dialog () {
             Alias:0) add_aliases ;;
              Info:0) system_info ;;
              Copy:0) copy_files  ;;
-             Path:0) downpath    ;;
+           Upload:0) upload      ;;
+             Dest:0) downpath    ;;
          Download:0) dlst; down  ;;
             Local:0) local_port  ;;
            Remote:0) remote_port ;;

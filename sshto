@@ -2,7 +2,7 @@
 
 REMOTE=8080      # Remote port for tunneling.
 LOCAL=18080      # Local  port for tunneling.
-DOWNLOAD=/backup # Path on target server for list files for downloading.
+DOWNLOAD=/backup # Path on target server from where the files will be downloaded.
 timer=60         # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 
 #Add your commands to this list
@@ -159,9 +159,13 @@ bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 
 
 #------------------------------{ Dialog functions }------------------------------------------------
 #------------------------{ Copy selected file to server }------------------------------------------
-copy_files () { filename=$(dialog --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
-       case   $filename in $PWD|$PWD/) return;; esac
-       scp -r $filename $target:~
+copy_files () {
+    filename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
+	case $filename:$? in
+        $PWD|$PWD/:0) return;;
+                 *:0) scp -r $filename $target:~;;
+                 *:*) return;;
+	esac;             copy_files
 }
 
 #------------------------{ Change local port for tunnelling }--------------------------------------
@@ -191,7 +195,7 @@ down () {
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
                  *:0) [[ $filename ]] && scp -r $target:$DOWNLOAD/$filename .;;
-                 *:*) second_dialog;;
+                 *:*) return;;
 	esac;             down
 }
 
@@ -212,7 +216,6 @@ new_list () {
 contents_menu () {
 	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
-
 	case $filter:$? in
              All:0) list=( "${fullist[@]}" );;
                *:0) new_list;;
@@ -225,7 +228,6 @@ first_dialog () {
 					--ok-label "CONNECT" --cancel-label "EXIT" --colors \
                     --help-button --help-label  "CONTENTS" --output-fd 1 \
 					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
-
 	case $target:$? in
        -*\ *\ *-:*) first_dialog ;;
                *:0) go_to_target  ; first_dialog;;
@@ -241,7 +243,6 @@ second_dialog () {
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 \
                      --extra-button    --extra-label "CONNECT" --colors    \
                      --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
-
 	case $command:$? in
            Sshkey:0) add_sshkey  ;;
             Alias:0) add_aliases ;;
@@ -264,13 +265,13 @@ IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description
 
-    case $name in '#DUMMY')
-
+    case $name in
+        '#DUMMY')
         desc="${host%\#*}"    ; desc="${desc##*\#}"
         name="{ $desc }"      ; length=$[ (40-${#name})/2 ]
         name=$( line - $length; printf  "$name"; line - $length )
         [[ ${#name} -lt 40 ]]  &&  name=-$name ; content+=( "$desc" ); desc=$(line - 20);;
-
+        '#'*) continue;;
     esac
 
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list

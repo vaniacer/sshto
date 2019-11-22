@@ -193,11 +193,11 @@ downpath () {
 upload () {
     filelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
 	filename=$(dialog --output-fd 1 --ok-label "DEST" --cancel-label "BACK" \
-                      --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
+                      --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
                  *:0) [[ $filename ]] && scp -r $filename $target:$DEST/;;
                  *:*) return;;
-	esac;             down
+	esac;             upload
 }
 
 dlst () { filelist=( $(ssh $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }

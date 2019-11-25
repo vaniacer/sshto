@@ -27,8 +27,8 @@ cmdlist_renew () { cmdlist=(
     "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
 ); }
 
-confile=~/.gtrc
-tmpfile=/tmp/gtrc
+confile=~/.sshtorc
+tmpfile=/tmp/sshtorc
 [[ -e $confile ]] && . $confile
 [[ -e $tmpfile ]] && . $tmpfile
 

@@ -1,0 +1,5 @@
+sshto (1.0-1) unstable; urgency=low
+
+  * Initial release.  Closes: #636016.
+
+ -- Ivan Marov <ie.marov@gmail.com>  Wed, 18 Sep 2019 12:46:24 +0300

@@ -1,0 +1,15 @@
+Source: sshto
+Maintainer: Ivan Marov <ie.marov@gmail.com>
+Section: misc
+Priority: optional
+Standards-Version: 3.9.8
+Vcs-Git: https://github.com/vaniacer/sshto.git
+Vcs-Browser: https://github.com/vaniacer/sshto
+Homepage: https://github.com/vaniacer/sshto
+
+Package: sshto
+Depends: ${dialog:Depends}
+Architecture: all
+Description: Small bash script to manage your ssh connections.
+ It builds menu (via dialog) from your ~/.ssh/config.
+ Can run commands, copy files, tunnel ports and connect. 

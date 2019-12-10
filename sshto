@@ -72,7 +72,8 @@ XY   () { printf "\e[${2};${1}H${3}"; } #                            |
 #--------------------------------------------------------------------+
 # Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
-#--------------------------------------------------------------------+
+# Create sequence like {0..X}                                        |
+cnt () { printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; } #|
 #------------------------{ Yes to ssh }------------------------------+
 ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.

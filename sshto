@@ -2,6 +2,7 @@
 
 REMOTE=8080  # Remote port for tunneling.
 LOCAL=18080  # Local  port for tunneling.
+USER=user    # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 timer=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 
@@ -17,6 +18,9 @@ cmdlist_renew () { cmdlist=(
 	"Sshkey"   "Add my ssh key to \Z4$target\Z0"
 	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
     "Copy"     "Copy selected file or dir to \Z4$target\Z0"
+    ''         ''
+    "User"     "Change username - \Z2$USER\Z0"
+    "Guest"    "Connect to \Z4$target\Z0 as \Z2$USER\Z0"
     ''         ''
     "Upload"   "Upload file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
     "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
@@ -141,7 +145,8 @@ system_info () {
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
 
 #------------------------{ SSH to target server }--------------------------------------------------
-go_to_target () { clear; ssh $target; }
+go_to_target () { clear; ssh  $1  $target; }
+connect_as   () { go_to_target "-l $USER"; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
 add_aliases () { clear; scp ~/.bash_aliases $target:~; }
@@ -170,30 +175,37 @@ copy_files () {
 	esac;             copy_files
 }
 
+#------------------------{ Change alternative username }-------------------------------------------
+user_name () {
+    new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
+                        --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $USER)
+    USER=${new_user:-$USER}
+}
+
 #------------------------{ Change local port for tunnelling }--------------------------------------
 local_port () {
-    new_local=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+    new_local=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                        --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
     LOCAL=${new_local:-$LOCAL}
 }
 
 #------------------------{ Change remote port for tunnelling }-------------------------------------
 remote_port () {
-    new_remote=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 5 \
+    new_remote=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                         --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
 }
 
 #------------------------{ Upload\Download dialogs }-----------------------------------------------
 downpath () { 
-    new_path=$(dialog --ok-label "Change" --cancel-label "BACK" --output-fd 1 --max-input 100 \
+    new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}
 }
 
 upload () {
     filelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
-	filename=$(dialog --output-fd 1 --ok-label "Upload" --cancel-label "BACK" \
+	filename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
                  *:0) [[ $filename ]] && scp -r $filename $target:$DEST/;;
@@ -203,7 +215,7 @@ upload () {
 
 dlst () { filelist=( $(ssh $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
 down () {
-	filename=$(dialog --output-fd 1 --ok-label "Download" --cancel-label "BACK" \
+	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
                  *:0) [[ $filename ]] && scp -r $target:$DEST/$filename .;;
@@ -260,6 +272,8 @@ second_dialog () {
             Alias:0) add_aliases ;;
              Info:0) system_info ;;
              Copy:0) copy_files  ;;
+             User:0) user_name   ;;
+            Guest:0) connect_as  ;;
            Upload:0) upload      ;;
              Dest:0) downpath    ;;
          Download:0) dlst; down  ;;

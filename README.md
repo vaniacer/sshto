@@ -4,7 +4,7 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/71089133-3c21d680-21b1-11ea-9ac3-2c0adb8a5bc0.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/71090302-c5d2a380-21b3-11ea-97c8-fc2906c7a0cd.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
@@ -22,8 +22,8 @@ cmdlist_renew () { cmdlist=(
     "Alias"    "Add my usefull aliases to $target"
     "Copy"     "Copy selected file or dir to $target"
     ''         ''
-    "Upload"   "Upload file or folder from $PWD to $target:$DEST"
     "Dest"     "Change destination folder $DEST on $target"
+    "Upload"   "Upload   file or folder from $PWD to $target:$DEST"
     "Download" "Download file or folder from $target:$DEST to $PWD"
     ''         ''
     "Local"    "Change local  port $LOCAL"

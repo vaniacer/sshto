@@ -2,7 +2,7 @@
 
 REMOTE=8080  # Remote port for tunneling.
 LOCAL=18080  # Local  port for tunneling.
-USER=user    # Alternative username to login with.
+GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 timer=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 
@@ -19,8 +19,7 @@ cmdlist_renew () { cmdlist=(
 	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
     "Copy"     "Copy selected file or dir to \Z4$target\Z0"
     ''         ''
-    "User"     "Change username - \Z2$USER\Z0"
-    "Guest"    "Connect to \Z4$target\Z0 as \Z2$USER\Z0"
+    "Username" "Change ssh username to \Z2$GUEST\Z0"
     ''         ''
     "Upload"   "Upload file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
     "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
@@ -145,11 +144,10 @@ system_info () {
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
 
 #------------------------{ SSH to target server }--------------------------------------------------
-go_to_target () { clear; ssh  $1  $target; }
-connect_as   () { go_to_target "-l $USER"; }
+go_to_target () { clear; ssh $SSH_OPT $target; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
-add_aliases () { clear; scp ~/.bash_aliases $target:~; }
+add_aliases () { clear; scp $SCP_OPT ~/.bash_aliases $target:~; }
 
 #------------------------{ Run command }-----------------------------------------------------------
 run_command () { clear; ssh -t $target $command; pause; }
@@ -170,16 +168,19 @@ copy_files () {
     filename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
 	case $filename:$? in
         $PWD|$PWD/:0) return;;
-                 *:0) scp -r $filename $target:~;;
+                 *:0) scp -r $SCP_OPT $filename $target:~;;
                  *:*) return;;
 	esac;             copy_files
 }
 
 #------------------------{ Change alternative username }-------------------------------------------
-user_name () {
+username () {
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
-                        --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $USER)
-    USER=${new_user:-$USER}
+                        --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
+	case $new_user:$? in
+                 *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-l$GUEST"; SCP_OPT="-oUser=$GUEST";;
+                 *:*) return;;
+	esac
 }
 
 #------------------------{ Change local port for tunnelling }--------------------------------------
@@ -208,7 +209,7 @@ upload () {
 	filename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $filename $target:$DEST/;;
+                 *:0) [[ $filename ]] && scp -r $SCP_OPT $filename $target:$DEST/;;
                  *:*) return;;
 	esac;             upload
 }
@@ -218,7 +219,7 @@ down () {
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $target:$DEST/$filename .;;
+                 *:0) [[ $filename ]] && scp -r $SCP_OPT $target:$DEST/$filename .;;
                  *:*) return;;
 	esac;             down
 }
@@ -272,8 +273,7 @@ second_dialog () {
             Alias:0) add_aliases ;;
              Info:0) system_info ;;
              Copy:0) copy_files  ;;
-             User:0) user_name   ;;
-            Guest:0) connect_as  ;;
+         Username:0) username    ;;
            Upload:0) upload      ;;
              Dest:0) downpath    ;;
          Download:0) dlst; down  ;;

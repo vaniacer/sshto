@@ -147,13 +147,13 @@ pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${D
 go_to_target () { clear; ssh $SSH_OPT $target; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
-add_aliases () { clear; scp $SCP_OPT ~/.bash_aliases $target:~; }
+add_aliases () { clear; scp $SSH_OPT ~/.bash_aliases $target:~; }
 
 #------------------------{ Run command }-----------------------------------------------------------
 run_command () { clear; ssh $SSH_OPT -t $target $command; pause; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id $SCP_OPT $target; }
+add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id $SSH_OPT $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
 portunneling () { ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
@@ -168,7 +168,7 @@ copy_files () {
     filename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
 	case $filename:$? in
         $PWD|$PWD/:0) return;;
-                 *:0) scp -r $SCP_OPT $filename $target:~;;
+                 *:0) scp -r $SSH_OPT $filename $target:~;;
                  *:*) return;;
 	esac;             copy_files
 }
@@ -179,8 +179,7 @@ username () {
                         --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
                  *:0) GUEST=${new_user:-$GUEST}
-                      SSH_OPT="-l$GUEST"
-                      SCP_OPT="-oUser=$GUEST"
+                      SSH_OPT="-oUser=$GUEST"
                       USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
 	esac
@@ -212,7 +211,7 @@ upload () {
 	filename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $SCP_OPT $filename $target:$DEST/;;
+                 *:0) [[ $filename ]] && scp -r $SSH_OPT $filename $target:$DEST/;;
                  *:*) return;;
 	esac;             upload
 }
@@ -222,7 +221,7 @@ down () {
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
 	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $SCP_OPT $target:$DEST/$filename .;;
+                 *:0) [[ $filename ]] && scp -r $SSH_OPT $target:$DEST/$filename .;;
                  *:*) return;;
 	esac;             down
 }

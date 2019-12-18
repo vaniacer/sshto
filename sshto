@@ -21,8 +21,8 @@ cmdlist_renew () { cmdlist=(
 	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
     "Copy"     "Copy selected file or dir to \Z4$target\Z0"
     ''         ''
-    "Upload"   "Upload file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
     "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+    "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
     "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
     ''         ''
     "Local"    "Change local  port \Z1$LOCAL\Z0"

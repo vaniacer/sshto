@@ -105,7 +105,7 @@ EOF
 #------------------------{ System Info commands }--------------------------------------------------
 system_info () {
     clear
-    ssh $target "
+    ssh $SSH_OPT $target "
         printf '\n${BLD}Hostname:${DEF}\n'
         hostname
 
@@ -150,13 +150,13 @@ go_to_target () { clear; ssh $SSH_OPT $target; }
 add_aliases () { clear; scp $SCP_OPT ~/.bash_aliases $target:~; }
 
 #------------------------{ Run command }-----------------------------------------------------------
-run_command () { clear; ssh -t $target $command; pause; }
+run_command () { clear; ssh $SSH_OPT -t $target $command; pause; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
+add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id $SCP_OPT $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
-portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
+portunneling () { ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
 #------------------------{ Exit function }---------------------------------------------------------
 bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT

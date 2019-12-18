@@ -4,7 +4,7 @@ REMOTE=8080  # Remote port for tunneling.
 LOCAL=18080  # Local  port for tunneling.
 GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
-timer=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
+TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(
@@ -156,7 +156,7 @@ run_command () { clear; ssh -t $target $command; pause; }
 add_sshkey () { clear; ssh_yes $target > /dev/null; ssh-copy-id $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
-portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $timer; }
+portunneling () { ssh $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
 #------------------------{ Exit function }---------------------------------------------------------
 bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
@@ -178,7 +178,10 @@ username () {
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
                         --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
-                 *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-l$GUEST"; SCP_OPT="-oUser=$GUEST";;
+                 *:0) GUEST=${new_user:-$GUEST}
+                      SSH_OPT="-l$GUEST"
+                      SCP_OPT="-oUser=$GUEST"
+                      USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
 	esac
 }
@@ -252,7 +255,7 @@ first_dialog () {
 	target=$(dialog --extra-button --extra-label "RUN COMMAND"         \
 					--ok-label "CONNECT" --cancel-label "EXIT" --colors \
                     --help-button --help-label  "CONTENTS" --output-fd 1 \
-					--menu "Select host to connect to:" 0 0 0 "${list[@]}")
+					--menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
 	case $target:$? in
        -*\ *\ *-:*) first_dialog ;;
                *:0) go_to_target  ; first_dialog;;
@@ -267,7 +270,7 @@ second_dialog () {
     cmdlist_renew
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 \
                      --extra-button    --extra-label "CONNECT" --colors    \
-                     --menu "Select command to run on host \Z4$target\Z0:" 0 0 0 "${cmdlist[@]}")
+                     --menu "Select command to run on host \Z4$target\Z0. $USERNOTE" 0 0 0 "${cmdlist[@]}")
 	case $command:$? in
            Sshkey:0) add_sshkey  ;;
             Alias:0) add_aliases ;;

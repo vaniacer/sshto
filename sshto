@@ -9,6 +9,8 @@ TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 secon
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(
 	#Command#  #Description#
+    "Username" "Change ssh username to \Z2$GUEST\Z0"
+    ''         ''
 	"ls  -la"  "List Files"
 	"free -h"  "Show free memory"
 	"df  -ih"  "Show free inodes"
@@ -18,8 +20,6 @@ cmdlist_renew () { cmdlist=(
 	"Sshkey"   "Add my ssh key to \Z4$target\Z0"
 	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
     "Copy"     "Copy selected file or dir to \Z4$target\Z0"
-    ''         ''
-    "Username" "Change ssh username to \Z2$GUEST\Z0"
     ''         ''
     "Upload"   "Upload file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
     "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
@@ -178,9 +178,7 @@ username () {
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
                         --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
-                 *:0) GUEST=${new_user:-$GUEST}
-                      SSH_OPT="-oUser=$GUEST"
-                      USERNOTE="Username changed to \Z2$GUEST\Z0.";;
+                 *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-oUser=$GUEST"; USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
 	esac
 }

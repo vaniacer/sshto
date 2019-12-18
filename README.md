@@ -4,12 +4,14 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/69423507-51811d80-0d37-11ea-9628-333d18491aac.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/71089133-3c21d680-21b1-11ea-9ac3-2c0adb8a5bc0.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
 cmdlist_renew () { cmdlist=(
     #Command#  #Description#
+    "Username" "Change ssh username to $GUEST"
+    ''         ''
     "ls  -la"  "List Files"
     "free -h"  "Show free memory"
     "df  -ih"  "Show free inodes"

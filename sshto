@@ -144,7 +144,7 @@ system_info () {
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
 
 #------------------------{ SSH to target server }--------------------------------------------------
-go_to_target () { clear; ssh $SSH_OPT $target; }
+go_to_target () { clear; ssh $SSH_OPT $target || pause; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
 add_aliases () { clear; scp $SSH_OPT ~/.bash_aliases $target:~; }

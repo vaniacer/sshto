@@ -214,7 +214,7 @@ upload () {
 	esac;             upload
 }
 
-dlst () { filelist=( $(ssh $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
+dlst () { filelist=( $(ssh $SSH_OPT $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
 down () {
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")

@@ -5,6 +5,7 @@ LOCAL=18080  # Local  port for tunneling.
 GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
+KEY=~/.ssh/id_rsa.pub # SSH key to use
 
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(
@@ -153,7 +154,7 @@ add_aliases () { clear; scp $SSH_OPT ~/.bash_aliases $target:~; }
 run_command () { clear; ssh $SSH_OPT -t $target $command; pause; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id $SSH_OPT $target; }
+add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
 portunneling () { ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }

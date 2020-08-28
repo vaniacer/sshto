@@ -86,7 +86,9 @@ You can customize dialog colors by creating a config file:
 <pre>
 dialog --create-rc ~/.dialogrc
 </pre>
-
+# How to install
+Clone\download this project, go to it's folder and run:
+<pre>sudo cp sshto /usr/bin/</pre>
 <a href="https://asciinema.org/a/PQMuRvfmxlHUc4oZMN76LY2V4">See how it works at asciinema</a></br>
 
 <a href="http://www.youtube.com/watch?feature=player_embedded&v=FhnsVH8t96Q

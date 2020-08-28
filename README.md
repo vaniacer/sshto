@@ -89,4 +89,9 @@ dialog --create-rc ~/.dialogrc
 
 <a href="https://asciinema.org/a/PQMuRvfmxlHUc4oZMN76LY2V4">See how it works at asciinema</a></br>
 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=FhnsVH8t96Q
+" target="_blank"><img src="http://img.youtube.com/vi/FhnsVH8t96Q/0.jpg" 
+alt="ssh config guide" width="240" height="180" border="10"/></a></br>
+Tom Lawrens video guide about ssh config and sshto
+
 [![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sshto?locale.x=en_US)  Don't hold yourself, buy me a beer)

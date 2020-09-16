@@ -288,7 +288,7 @@ second_dialog () {
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/d; s/Host //g;'); {
+IFSOLD=$IFS; IFS=$'\n'; for host in $(find . -maxdepth 1 -iname "config*" ! -iname "config*~" | xargs grep -h "Host " | sed '/\*/d; s/Host //g;'); {
 
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description

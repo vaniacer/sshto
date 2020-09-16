@@ -75,6 +75,7 @@ Host moserver3 #Third server
 HostName localhost
 </pre>
 Script greps data from multiple config files via pattername <i>'config*'</i> in <i>~/.ssh</i> dir.<br>
+(excludes temp files where the filename ends with a '~')<br>
 So you can split config to multiple files and use them with <i>Include</i> directive, example:
 <pre>
 Include config_moscow

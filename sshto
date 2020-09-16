@@ -288,19 +288,17 @@ second_dialog () {
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-while read -r host; do
-    name="${host// #*/}" # Get HostName
-    desc="${host//*#/}"  # Get Description
+while read -r name desc; do
     case $name in
-        '#DUMMY') desc="${host%\#*}" desc="${desc##*\#}" name="{ $desc }" name_length=${#name}
-                  name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
-                  printf -v tmp "%${name_left}s_NAME_%${name_right}s"
-                  tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
-                  content+=( "$desc" ); desc=$(line - 20);;
-            '#'*) continue;;
+        'DUMMY') name="{ $desc }" name_length=${#name}
+                 name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
+                 printf -v tmp "%${name_left}s_NAME_%${name_right}s"
+                 tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
+                 content+=( "$desc" ); desc=$(line - 20);;
+           '#'*) continue;;
     esac
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
-done < <(sed -n '/*/d; s/Host //p' ~/.ssh/config*[!~])
+done < <(sed -n '/*/d; s/#Host \(.*\)#\(.*\)#.*/\1\2/p; s/ #/ /; s/Host //p' ~/.ssh/{config,config*[!~]})
 list=( "${fullist[@]}" )
 [[ $filter ]] && new_list
 

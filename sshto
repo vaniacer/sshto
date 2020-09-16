@@ -199,7 +199,7 @@ remote_port () {
 }
 
 #------------------------{ Upload\Download dialogs }-----------------------------------------------
-downpath () { 
+downpath () {
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}

@@ -33,8 +33,8 @@ cmdlist_renew () { cmdlist=(
 
 confile=~/.sshtorc
 tmpfile=/tmp/sshtorc
-[[ -e $confile ]] && . $confile
-[[ -e $tmpfile ]] && . $tmpfile
+[[ -e $confile ]] && . "$confile"
+[[ -e $tmpfile ]] && . "$tmpfile"
 
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {
@@ -229,7 +229,6 @@ down () {
 new_list () {
     list=(); match=
     for item in "${fullist[@]}"; {
-
         case         $item:$match in
                  -*\ *\ *-:1) break  ;;
            -*\ $filter\ *-:*) match=1;;
@@ -243,7 +242,8 @@ contents_menu () {
 	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 	case $filter:$? in
-             All:0) list=( "${fullist[@]}" );;
+             All:0) list=( "${fullist[@]}" )
+                    echo "filter=" > $tmpfile;;
                *:0) new_list;;
 	esac;           first_dialog
 }
@@ -288,26 +288,21 @@ second_dialog () {
 }
 
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-IFSOLD=$IFS; IFS=$'\n'; for host in $(grep -h "Host " ~/.ssh/config* | sed '/\*/d; s/Host //g;'); {
-
+while read -r host; do
     name="${host// #*/}" # Get HostName
     desc="${host//*#/}"  # Get Description
-
     case $name in
-        '#DUMMY')
-        desc="${host%\#*}"    ; desc="${desc##*\#}"
-        name="{ $desc }"      ; length=$[ (40-${#name})/2 ]
-        name=$( line - $length; printf  "$name"; line - $length )
-        [[ ${#name} -lt 40 ]]  &&  name=-$name ; content+=( "$desc" ); desc=$(line - 20);;
-        '#'*) continue;;
+        '#DUMMY') desc="${host%\#*}" desc="${desc##*\#}" name="{ $desc }" name_length=${#name}
+                  name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
+                  printf -v tmp "%${name_left}s_NAME_%${name_right}s"
+                  tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
+                  content+=( "$desc" ); desc=$(line - 20);;
+            '#'*) continue;;
     esac
-
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
-
-}; IFS=$IFSOLD
+done < <(sed -n '/*/d; s/Host //p' ~/.ssh/config*[!~])
 list=( "${fullist[@]}" )
 [[ $filter ]] && new_list
 
 #--{ Go baby, GO!) }--
 first_dialog; bye
-

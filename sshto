@@ -4,8 +4,8 @@ LOCAL=18080  # Local  port for tunneling.
 GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
-KEY=~/.ssh/id_rsa.pub # SSH key to use
 EDITOR=nano  # Confile editor
+KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host)
 
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(

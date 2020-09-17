@@ -4,10 +4,11 @@ LOCAL=18080  # Local  port for tunneling.
 GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
-EDITOR=nano  # Confile editor
-KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host)
+EDITOR=nano  # Confile editor.
+KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
+CONFILES=$(echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
 
-#Add your commands to this list
+#------------------------{ Add your commands to this list }----------------------------------------
 cmdlist_renew () { cmdlist=(
 	#Command#  #Description#
     "Username" "Change ssh username to \Z2$GUEST\Z0"
@@ -145,7 +146,7 @@ system_info () {
 }
 #------------------------{ Show\Edit ssh config }--------------------------------------------------
 show_conf () { clear; ssh -G $target; pause; }
-edit_conf () { $EDITOR "$(grep -ril "Host[[:space:]]$target" ~/.ssh/{config,config*[!~]})"; }
+edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
 
 #------------------------{ Pause function }--------------------------------------------------------
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
@@ -306,7 +307,7 @@ while read -r name desc; do
            '#'*) continue;;
     esac
     fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
-done < <(sed -n '/*/d; s/#Host \(.*\)#\(.*\)#.*/\1\2/p; s/ #/ /; s/Host //p' ~/.ssh/{config,config*[!~]})
+done < <(sed -n '/*/d; s/#Host \(.*\)#\(.*\)#.*/\1\2/p; s/ #/ /; s/Host //p' $CONFILES)
 list=( "${fullist[@]}" )
 [[ $filter ]] && new_list
 

@@ -145,7 +145,7 @@ system_info () {
 }
 #------------------------{ Show\Edit ssh config }--------------------------------------------------
 show_conf () { clear; ssh -G $target; pause; }
-edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" ~/.ssh/{config,config*[!~]}); }
+edit_conf () { $EDITOR "$(grep -ril "Host[[:space:]]$target" ~/.ssh/{config,config*[!~]})"; }
 
 #------------------------{ Pause function }--------------------------------------------------------
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }

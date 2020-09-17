@@ -1,11 +1,11 @@
 #!/bin/bash
-
 REMOTE=8080  # Remote port for tunneling.
 LOCAL=18080  # Local  port for tunneling.
 GUEST=$USER  # Alternative username to login with.
 DEST='~'     # Destination folder on target server to download\upload files.
 TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
 KEY=~/.ssh/id_rsa.pub # SSH key to use
+EDITOR=nano  # Confile editor
 
 #Add your commands to this list
 cmdlist_renew () { cmdlist=(
@@ -29,6 +29,9 @@ cmdlist_renew () { cmdlist=(
     "Local"    "Change local  port \Z1$LOCAL\Z0"
     "Remote"   "Change remote port \Z1$REMOTE\Z0"
     "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
+    ''         ''
+    "ShowConf" "Show ssh config for this host"
+    "EditConf" "Edit ssh config for this host"
 ); }
 
 confile=~/.sshtorc
@@ -140,6 +143,9 @@ system_info () {
     "
     pause
 }
+#------------------------{ Show\Edit ssh config }--------------------------------------------------
+show_conf () { clear; ssh -G $target; pause; }
+edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" ~/.ssh/{config,config*[!~]}); }
 
 #------------------------{ Pause function }--------------------------------------------------------
 pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
@@ -281,6 +287,8 @@ second_dialog () {
             Local:0) local_port  ;;
            Remote:0) remote_port ;;
            Tunnel:0) portunneling;;
+         ShowConf:0) show_conf   ;;
+         EditConf:0) edit_conf   ;;
                 *:3) go_to_target;;
                 *:0) run_command ;;
                 *:*) first_dialog;;

@@ -4,7 +4,7 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/71090302-c5d2a380-21b3-11ea-97c8-fc2906c7a0cd.png)
+![screeenshot](https://user-images.githubusercontent.com/18072680/93428736-a2ff2800-f8c8-11ea-9af4-d04a18022d8e.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
@@ -29,6 +29,9 @@ cmdlist_renew () { cmdlist=(
     "Local"    "Change local  port $LOCAL"
     "Remote"   "Change remote port $REMOTE"
     "Tunnel"   "Start portunneling from $target port $REMOTE to local port $LOCAL"
+    ''         ''
+    "ShowConf" "Show ssh config for this host"
+    "EditConf" "Edit ssh config for this host"
 ); }
 </pre>
 First collumn - command, second - description.</br>

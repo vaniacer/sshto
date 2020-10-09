@@ -155,7 +155,11 @@ pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${D
 go_to_target () { clear; ssh $SSH_OPT $target || pause; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
-add_aliases () { clear; scp $SSH_OPT ~/.bash_aliases $target:~; }
+add_aliases () {
+    clear
+    scp $SSH_OPT ~/.bash_aliases $target:~
+    ssh $SSH_OPT $target "grep '. ~/.bash_aliases' .bashrc || echo '. ~/.bash_aliases' >> .bashrc"
+}
 
 #------------------------{ Run command }-----------------------------------------------------------
 run_command () { clear; ssh $SSH_OPT -t $target $command; pause; }

@@ -246,7 +246,7 @@ new_list () {
         esac
         [[ $match ]] && list+=( "$item" )
     }
-    echo "filter='$filter'" > $tmpfile
+    [[ ${list[*]} ]] && echo "filter='$filter'" > "$tmpfile" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
 contents_menu () {

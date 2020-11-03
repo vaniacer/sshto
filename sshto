@@ -85,7 +85,7 @@ cnt () { printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; } #|
 #------------------------{ Yes to ssh }------------------------------+
 ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.
-# Expect must be installed on server. Options:
+# Expect must be installed on server.  Options:
 #   $1 - ssh address with parameters(if needed)
 #
 # Usage example:

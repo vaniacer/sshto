@@ -90,20 +90,19 @@ ssh_yes () {
 #
 # Usage example:
 #   ssh_yes "-p22 user@localhost"
-expect << EOF
-spawn ssh $1
-expect {
-    "(yes/no)?" {
-        send "yes\n"
-        expect {
-            "assword:" { exit }
-            "$ "       { send "exit\n" }
-        }
-    }
+assword='
     "assword:" { exit }
     "$ "       { send "exit\n" }
+'
+expect <<  EOF
+spawn  ssh $1
+expect {
+    "yes/no" {
+        send "yes\n"
+        expect { $assword }
+    }
+    $assword
 }
-exit
 EOF
 }
 

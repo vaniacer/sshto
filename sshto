@@ -43,8 +43,8 @@ tmpfile=/tmp/sshtorc
 #------------------------{ Check if dialog installed }---------------------------------------------
 dialog &> /dev/null || {
     [[ $(uname -s) == "Darwin" ]] \
-        && printf "\nInstall dialog\nbrew install -y dialog" \
-        || printf "\nInstall dialog\nsudo apt-get install -y dialog"
+        && printf "\nInstall dialog\nbrew install -y dialog\n" \
+        || printf "\nInstall dialog\nsudo apt-get install -y dialog\n"
     exit 1
 }
 

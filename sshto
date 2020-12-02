@@ -39,15 +39,6 @@ confile=~/.sshtorc
 tmpfile=/tmp/sshtorc
 [[ -e $confile ]] && . "$confile"
 [[ -e $tmpfile ]] && . "$tmpfile"
-
-#------------------------{ Check if dialog installed }---------------------------------------------
-dialog &> /dev/null || {
-    [[ $(uname -s) == "Darwin" ]] \
-        && printf "\nInstall dialog\nbrew install -y dialog" \
-        || printf "\nInstall dialog\nsudo apt-get install -y dialog"
-    exit 1
-}
-
 #--------------------------------------------------------------------+
 #Color picker, usage: printf ${BLD}${CUR}${RED}${BBLU}"Hello!)"${DEF}|
 #-------------------------+--------------------------------+---------+
@@ -82,7 +73,25 @@ XY   () { printf "\e[${2};${1}H${3}"; } #                            |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
 # Create sequence like {0..X}                                        |
 cnt () { printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; } #|
-#------------------------{ Yes to ssh }------------------------------+
+#------------------------{ Check if dialog installed }---------------+
+install_help="
+${BLD}sshto$DEF requires that the package '${GRN}dialog$DEF' is installed.
+Type this into the terminal and press return:
+
+    ${BLD}%s$DEF
+
+Then run ${BLD}sshto$DEF again
+"
+how_to_install () {
+    which yum     &> /dev/null && installer='yum -y install dialog'
+    which brew    &> /dev/null && installer='brew install dialog'
+    which apt-get &> /dev/null && installer='apt-get install -y dialog'
+    printf "$install_help" "$installer"
+    exit 1
+}
+
+dialog &> /dev/null || how_to_install
+#------------------------{ Yes to ssh }------------------------------------------------------------
 ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.
 # Expect must be installed on server.  Options:

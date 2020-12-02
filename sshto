@@ -73,7 +73,7 @@ XY   () { printf "\e[${2};${1}H${3}"; } #                            |
 line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
 # Create sequence like {0..X}                                        |
 cnt () { printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; } #|
-#------------------------{ Check if dialog installed }---------------+
+#----------------{ Check that dialog is installed }------------------+
 install_help="
 ${BLD}sshto$DEF requires that the package '${GRN}dialog$DEF' is installed.
 Type this into the terminal and press return:

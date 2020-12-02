@@ -90,7 +90,7 @@ how_to_install () {
     exit 1
 }
 
-dialog &> /dev/null || how_to_install
+which dialog &> /dev/null || how_to_install
 #------------------------{ Yes to ssh }------------------------------------------------------------
 ssh_yes () {
 # If connecting first time send 'yes' on ssh's request.

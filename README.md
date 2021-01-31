@@ -104,7 +104,7 @@ sudo rm /usr/bin/sshto
 alt="ssh config guide" width="240" height="180" border="10"/></a></br>
 Tom Lawrens video guide about ssh config and sshto
 
-[![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sshto?locale.x=en_US)  Don't hold yourself, buy me a beer)</br>
+[![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sshto?locale.x=en_US) Feel free to support the project!)</br>
 
 BTC: 1LxRxsyXP389YW3Ezw9YzNetE5VYj1RaJf</br>
 ![btc](https://user-images.githubusercontent.com/18072680/106382955-f2f00e80-63d3-11eb-9316-b6653225820c.png)

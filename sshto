@@ -1,13 +1,14 @@
 #!/bin/bash
-REMOTE=8080  # Remote port for tunneling.
-LOCAL=18080  # Local  port for tunneling.
-GUEST=$USER  # Alternative username to login with.
-DEST='~'     # Destination folder on target server to download\upload files.
-TIME=60      # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
-EDITOR=nano  # Confile editor.
-KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
+#--------------------------{ Default values }------------------------------------------------------
+  REMOTE=8080   # Remote port for tunneling.
+   LOCAL=18080  # Local  port for tunneling.
+   GUEST=$USER  # Alternative username to login with.
+    DEST='~'    # Destination folder on target server to download\upload files.
+    TIME=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
+  EDITOR=nano   # Confile editor.
+     OPT=$1     # Options
+     KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
 CONFILES=$(echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
-
 #------------------------{ Add your commands to this list }----------------------------------------
 cmdlist_renew () { cmdlist=(
 	#Command#  #Description#
@@ -269,13 +270,16 @@ contents_menu () {
 
 #------------------------{ First dialog - Select host }--------------------------------------------
 first_dialog () {
-	target=$(dialog --extra-button --extra-label "RUN COMMAND"         \
-					--ok-label "CONNECT" --cancel-label "EXIT" --colors \
-                    --help-button --help-label  "CONTENTS" --output-fd 1 \
-					--menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
+    [[ $OPT =~ name ]] && oklbl='GET NAME' extra= || oklbl='CONNECT' extra='--extra-button'
+	target=$(dialog --output-fd 1 --colors $extra --help-button \
+	                --extra-label  "RUN COMMAND" \
+	                --help-label   "CONTENTS" \
+	                --ok-label     "$oklbl" \
+                    --cancel-label "EXIT" \
+	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
 	case $target:$? in
        -*\ *\ *-:*) first_dialog ;;
-               *:0) go_to_target  ; first_dialog;;
+               *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
                *:2) contents_menu;;
       	       *:3) second_dialog;;
       	       *:*) bye;;
@@ -324,4 +328,5 @@ list=( "${fullist[@]}" )
 [[ $filter ]] && new_list
 
 #--{ Go baby, GO!) }--
-first_dialog; bye
+first_dialog
+[[ $OPT =~ name ]] && echo $target || bye

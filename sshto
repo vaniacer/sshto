@@ -158,8 +158,12 @@ show_conf () { clear; ssh -G $target; pause; }
 edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
 
 #------------------------{ Pause function }--------------------------------------------------------
-pause () { printf "\n${BLD}"; read -p 'press any key to continue'; printf "\n${DEF}"; }
-
+pause () {
+    local  mess=${1:-'press any key to continue'}
+    printf "\n$COF$BLD$mess\n"
+    read   -srn1
+    printf "\n$DEF$CON"
+}
 #------------------------{ SSH to target server }--------------------------------------------------
 go_to_target () { clear; ssh $SSH_OPT $target || pause; }
 
@@ -180,7 +184,7 @@ add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $K
 portunneling () { ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
 #------------------------{ Exit function }---------------------------------------------------------
-bye () { clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
+bye () { printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
 
 #------------------------------{ Dialog functions }------------------------------------------------

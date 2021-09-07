@@ -233,20 +233,26 @@ upload () {
     filelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
 	filename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
-	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $SSH_OPT $filename $target:$DEST/;;
-                 *:*) return;;
-	esac;             upload
+	case $? in
+         0) [[ $filename ]] || upload
+            clear
+            printf "Uploading $BLD$filename$DEF\n"
+            scp -r $SSH_OPT $filename $target:"$DEST/" || pause;;
+         *) return;;
+	esac;   upload
 }
 
 dlst () { filelist=( $(ssh $SSH_OPT $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
 down () {
 	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
                       --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
-	case $filename:$? in
-                 *:0) [[ $filename ]] && scp -r $SSH_OPT $target:$DEST/$filename .;;
-                 *:*) return;;
-	esac;             down
+	case $? in
+         0) [[ $filename ]] || down
+            clear
+            printf "Downloading $BLD$filename$DEF\n"
+            scp -r $SSH_OPT $target:"$DEST/$filename" . || pause;;
+         *) return;;
+	esac;   down
 }
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------

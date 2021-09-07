@@ -227,32 +227,43 @@ downpath () {
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}
+    dfilelist=
 }
 
 upload () {
-    filelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
-	filename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
-                      --menu "Select file\folder to upload:" 0 0 0 "${filelist[@]:2}")
+    ufilelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
+	ufilename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
+                      --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
 	case $? in
-         0) [[ $filename ]] || upload
+         0) [[ $ufilename ]] || upload
             clear
-            printf "Uploading $BLD$filename$DEF\n"
-            scp -r $SSH_OPT $filename $target:"$DEST/" || pause;;
+            printf "Uploading $BLD$ufilename$DEF\n"
+            scp -r $SSH_OPT $ufilename $target:"$DEST/" || pause;;
          *) return;;
 	esac;   upload
 }
 
-dlst () { filelist=( $(ssh $SSH_OPT $target ls -sh1 $DEST | awk '{print $2,$1}') ) || second_dialog; }
-down () {
-	filename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
-                      --menu "Select file\folder to download:" 0 0 0 "${filelist[@]:2}")
+download () {
+    [[ $dfilelist ]] || {
+        dfilelist=$(ssh $SSH_OPT $target ls -sh1 $DEST 2>&1) \
+            && dfilelist=( $(awk '{print $2,$1}' <<< "$dfilelist") ) \
+            || {
+                clear
+                echo "$dfilelist"
+                pause
+                dfilelist=
+                second_dialog
+            }
+    }
+	dfilename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
+                      --menu "Select file\folder to download:" 0 0 0 "${dfilelist[@]:2}")
 	case $? in
-         0) [[ $filename ]] || down
+         0) [[ $dfilename ]] || download
             clear
-            printf "Downloading $BLD$filename$DEF\n"
-            scp -r $SSH_OPT $target:"$DEST/$filename" . || pause;;
+            printf "Downloading $BLD$dfilename$DEF\n"
+            scp -r $SSH_OPT $target:"$DEST/$dfilename" . || pause;;
          *) return;;
-	esac;   down
+	esac;   download
 }
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
@@ -310,7 +321,7 @@ second_dialog () {
          Username:0) username    ;;
            Upload:0) upload      ;;
              Dest:0) downpath    ;;
-         Download:0) dlst; down  ;;
+         Download:0) download    ;;
             Local:0) local_port  ;;
            Remote:0) remote_port ;;
            Tunnel:0) portunneling;;

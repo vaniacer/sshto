@@ -291,6 +291,7 @@ contents_menu () {
 
 #------------------------{ First dialog - Select host }--------------------------------------------
 first_dialog () {
+    dfilelist=
     [[ $OPT =~ name ]] && oklbl='GET NAME' extra= || oklbl='CONNECT' extra='--extra-button'
 	target=$(dialog --output-fd 1 --colors $extra --help-button \
 	                --extra-label  "RUN COMMAND" \

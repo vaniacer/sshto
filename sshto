@@ -10,31 +10,49 @@
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
 CONFILES=$(echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
 #------------------------{ Add your commands to this list }----------------------------------------
-cmdlist_renew () { cmdlist=(
-	#Command#  #Description#
-    "Username" "Change ssh username to \Z2$GUEST\Z0"
-    ''         ''
-	"ls  -la"  "List Files"
-	"free -h"  "Show free memory"
-	"df  -ih"  "Show free inodes"
-	"df   -h"  "Show free disk space"
-    ''         ''
-    "Info"     "Full system info"
-	"Sshkey"   "Add my ssh key to \Z4$target\Z0"
-	"Alias"    "Add my usefull aliases to \Z4$target\Z0"
-    "Copy"     "Copy selected file or dir to \Z4$target\Z0"
-    ''         ''
-    "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-    "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
-    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
-    ''         ''
-    "Local"    "Change local  port \Z1$LOCAL\Z0"
-    "Remote"   "Change remote port \Z1$REMOTE\Z0"
-    "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
-    ''         ''
-    "ShowConf" "Show ssh config for this host"
-    "EditConf" "Edit ssh config for this host"
-); }
+cmdlist_renew(){
+    cmdlist=(
+        #Command#  #Description#
+        "Username" "Change ssh username to \Z2$GUEST\Z0"
+        ''         ''
+        "ls  -la"  "List Files"
+        "free -h"  "Show free memory"
+        "df  -ih"  "Show free inodes"
+        "df   -h"  "Show free disk space"
+        ''         ''
+        "Info"     "Full system info"
+        "Sshkey"   "Add my ssh key to \Z4$target\Z0"
+        "Alias"    "Add my usefull aliases to \Z4$target\Z0"
+        "Copy"     "Copy selected file or dir to \Z4$target\Z0"
+        ''         ''
+        "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+        "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
+        "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
+        ''         ''
+        "Local"    "Change local  port \Z1$LOCAL\Z0"
+        "Remote"   "Change remote port \Z1$REMOTE\Z0"
+        "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
+        ''         ''
+        "ShowConf" "Show ssh config for this host"
+        "EditConf" "Edit ssh config for this host"
+    )
+    cmdlist_group=(
+        #Command#  #Description#
+        "Username" "Change ssh username to \Z2$GUEST\Z0"
+        ''         ''
+        "ls  -la"  "List Files"
+        "free -h"  "Show free memory"
+        "df  -ih"  "Show free inodes"
+        "df   -h"  "Show free disk space"
+        ''         ''
+        "Info"     "Full system info"
+        "Alias"    "Add my usefull aliases to \Z4$group\Z0"
+        "Copy"     "Copy selected file or dir to \Z4$group\Z0"
+        ''         ''
+        "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$group\Z0"
+        "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$group:${DEST}\Z0"
+    )
+}
 
 confile=~/.sshtorc
 tmpfile=/tmp/sshtorc
@@ -118,7 +136,6 @@ EOF
 
 #------------------------{ System Info commands }--------------------------------------------------
 system_info () {
-    clear
     ssh $SSH_OPT $target "
         printf '\n${BLD}Hostname:${DEF}\n'
         hostname
@@ -151,8 +168,8 @@ system_info () {
         printf '\n${BLD}Processes:${DEF}\n'
         top -bcn1 | head -n30
     "
-    pause
 }
+
 #------------------------{ Show\Edit ssh config }--------------------------------------------------
 show_conf () { clear; ssh -G $target; pause; }
 edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
@@ -169,13 +186,28 @@ go_to_target () { clear; ssh $SSH_OPT $target || pause; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
 add_aliases () {
-    clear
     scp $SSH_OPT ~/.bash_aliases $target:~
     ssh $SSH_OPT $target "grep '. ~/.bash_aliases' .bashrc || echo '. ~/.bash_aliases' >> .bashrc"
 }
 
+#------------------------{ Run function on a group of servers }------------------------------------
+group_run(){
+    local func group_list
+    func="$1"
+    group_list=("${list[@]:2}")
+    for ((i=0; i<${#group_list[@]}; i+=2)); do
+          target="${group_list[$i]}"
+      [[ $target =~ ^-+.*-+$ ]] && continue
+      (  code="$BLD$GRN"
+           data=$( $func 2>&1 ) || code="$BLD$RED"
+           printf -- "\n$code%s$DEF\n%s\n" "----{ $target }----" "$data" | grep -Evi 'terminal will not be allocated'
+      )  &
+    done
+    wait
+}
+
 #------------------------{ Run command }-----------------------------------------------------------
-run_command () { clear; ssh $SSH_OPT -t $target $command; pause; }
+run_command () { ssh $SSH_OPT -t $target $command; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
 add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
@@ -188,16 +220,6 @@ bye () { printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || l
 
 
 #------------------------------{ Dialog functions }------------------------------------------------
-#------------------------{ Copy selected file to server }------------------------------------------
-copy_files () {
-    filename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
-	case $filename:$? in
-        $PWD|$PWD/:0) return;;
-                 *:0) scp -r $SSH_OPT $filename $target:~;;
-                 *:*) return;;
-	esac;             copy_files
-}
-
 #------------------------{ Change alternative username }-------------------------------------------
 username () {
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
@@ -223,22 +245,38 @@ remote_port () {
 }
 
 #------------------------{ Upload\Download dialogs }-----------------------------------------------
-downpath () {
+downpath(){
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}
     dfilelist=
 }
 
-upload () {
+uploader(){
+    printf "Uploading $BLD$ufilename$DEF\n"
+    scp -r $SSH_OPT $ufilename $target:"$DEST/"
+}
+
+copy_files () {
+    local runner=
+    [[ $group ]] && runner='group_run'
+    ufilename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
+	case $ufilename:$? in
+         $PWD|$PWD/:0) return;;
+                  *:0) clear; $runner uploader; pause;;
+                  *:*) return;;
+	esac;              copy_files
+}
+
+upload(){
+    local runner=
+    [[ $group ]] && runner='group_run'
     ufilelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
 	ufilename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
-                      --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
+                       --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
 	case $? in
          0) [[ $ufilename ]] || upload
-            clear
-            printf "Uploading $BLD$ufilename$DEF\n"
-            scp -r $SSH_OPT $ufilename $target:"$DEST/" || pause;;
+            clear; $runner uploader; pause;;
          *) return;;
 	esac;   upload
 }
@@ -280,17 +318,19 @@ new_list () {
 }
 
 contents_menu () {
-	filter=$(dialog --output-fd 1 --ok-label "SELECT" --cancel-label "BACK" \
+	filter=$(dialog --output-fd 1 --ok-label "SELECT" --extra-button --extra-label "RUN COMMAND" --cancel-label "BACK" \
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 	case $filter:$? in
              All:0) list=( "${fullist[@]}" )
                     echo "filter=" > $tmpfile;;
+               *:3) second_dialog   "$filter";;
                *:0) new_list;;
 	esac;           first_dialog
 }
 
 #------------------------{ First dialog - Select host }--------------------------------------------
 first_dialog () {
+    group=
     dfilelist=
     [[ $OPT =~ name ]] && oklbl='GET NAME' extra= || oklbl='CONNECT' extra='--extra-button'
 	target=$(dialog --output-fd 1 --colors $extra --help-button \
@@ -310,17 +350,21 @@ first_dialog () {
 
 #------------------------{ Second dialog - Select command }----------------------------------------
 second_dialog () {
+    group="$1"
+    local headings connect commands runner
+    runner= commands='cmdlist[@]' connect='--extra-button' headings="Select command to run on host \Z4$target\Z0. $USERNOTE"
+    [[ $group ]] && filter=$group runner='group_run' commands='cmdlist_group[@]' connect= headings="Select command to run on group \Z4$group\Z0. $USERNOTE"
+    new_list
     cmdlist_renew
-	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 \
-                     --extra-button    --extra-label "CONNECT" --colors    \
-                     --menu "Select command to run on host \Z4$target\Z0. $USERNOTE" 0 0 0 "${cmdlist[@]}")
+	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \
+                     --menu "$headings" 0 0 0 "${!commands}")
 	case $command:$? in
            Sshkey:0) add_sshkey  ;;
-            Alias:0) add_aliases ;;
-             Info:0) system_info ;;
-             Copy:0) copy_files  ;;
+            Alias:0) clear; $runner add_aliases; pause;;
+             Info:0) clear; $runner system_info; pause;;
+             Copy:0) copy_files $group;;
+           Upload:0) upload     $group;;
          Username:0) username    ;;
-           Upload:0) upload      ;;
              Dest:0) downpath    ;;
          Download:0) download    ;;
             Local:0) local_port  ;;
@@ -329,11 +373,11 @@ second_dialog () {
          ShowConf:0) show_conf   ;;
          EditConf:0) edit_conf   ;;
                 *:3) go_to_target;;
-                *:0) run_command ;;
+                *:0) clear; $runner run_command; pause;;
                 *:*) first_dialog;;
-	esac;            second_dialog
+	esac;            second_dialog "$group"
 }
-
+#clear; ssh $SSH_OPT -t $target $command; pause;
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
 while read -r name desc; do
     case $name in

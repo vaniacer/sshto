@@ -192,22 +192,29 @@ add_aliases () {
 
 #------------------------{ Run function on a group of servers }------------------------------------
 group_run(){
-    local func group_list
+    local func group_list data
     func="$1"
     group_list=("${list[@]:2}")
-    for ((i=0; i<${#group_list[@]}; i+=2)); do
-          target="${group_list[$i]}"
-      [[ $target =~ ^-+.*-+$ ]] && continue
-      (  code="$BLD$GRN"
-           data=$( $func 2>&1 ) || code="$BLD$RED"
-           printf -- "\n$code%s$DEF\n%s\n" "----{ $target }----" "$data" | grep -Evi 'terminal will not be allocated'
-      )  &
-    done
+    SSH_OPT_CUR="$SSH_OPT"
+    SSH_OPT="$SSH_OPT -o ConnectTimeout=5 -o BatchMode=true"
+    data=$(
+        for ((i=0; i<${#group_list[@]}; i+=2)); do
+              target="${group_list[$i]}"
+          [[ $target =~ ^-+.*-+$ ]] && continue
+          (  code="$BLD$GRN"
+             data=$( $func 2>&1 ) || code="$BLD$RED"
+             data=$( sed ':a;N;$!ba;s/\n/\\n/g' <<< "$data" )
+             echo "$code----{ $target }----$DEF\\n${data:-fail}\\n"
+          )  &
+        done
+    )
     wait
+    printf -- "$data"
+    SSH_OPT="$SSH_OPT_CUR"
 }
 
 #------------------------{ Run command }-----------------------------------------------------------
-run_command () { ssh $SSH_OPT -t $target $command; }
+run_command () { ssh $SSH_OPT $target $command; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
 add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
@@ -377,7 +384,7 @@ second_dialog () {
                 *:*) first_dialog;;
 	esac;            second_dialog "$group"
 }
-#clear; ssh $SSH_OPT -t $target $command; pause;
+
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
 while read -r name desc; do
     case $name in

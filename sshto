@@ -85,13 +85,12 @@ INV='\e[7m'   #Inverted                                              |
 COF='\e[?25l' #Cursor Off                                            |
 CON='\e[?25h' #Cursor On                                             |
 #--------------------------------------------------------------------+
-# Text positioning, usage: XY 10 10 "Hello World!"                   |
-XY   () { printf "\e[${2};${1}H${3}"; } #                            |
-#--------------------------------------------------------------------+
-# Print line, usage: line - 10 | line -= 20 | line "Hello World!" 20 |
-line () { printf -v LINE "%$2s"; printf -- "${LINE// /$1}"; } #      |
-# Create sequence like {0..X}                                        |
-cnt () { printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; } #|
+# Text positioning, usage: XY 10 10 'Hello World!'                   |
+XY(){ printf "\e[$2;${1}H$3"; }                                     #|
+# Print line, usage: line - 10 | line -= 20 | line 'Hello World!' 20 |
+line(){ printf -v _L %$2s; printf -- "${_L// /$1}"; }               #|
+# Create sequence like {0..(X-1)}, usage: que 10                     |
+que(){ printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; }   #|
 #----------------{ Check that dialog is installed }------------------+
 install_help="
 ${BLD}sshto$DEF requires that the package '${GRN}dialog$DEF' is installed.
@@ -101,7 +100,7 @@ Type this into the terminal and press return:
 
 Then run ${BLD}sshto$DEF again
 "
-how_to_install () {
+how_to_install(){
     which yum     &> /dev/null && installer='yum -y install dialog'
     which brew    &> /dev/null && installer='brew install dialog'
     which apt-get &> /dev/null && installer='apt-get install -y dialog'
@@ -111,7 +110,7 @@ how_to_install () {
 
 which dialog &> /dev/null || how_to_install
 #------------------------{ Yes to ssh }------------------------------------------------------------
-ssh_yes () {
+ssh_yes(){
 # If connecting first time send 'yes' on ssh's request.
 # Expect must be installed on server.  Options:
 #   $1 - ssh address with parameters(if needed)
@@ -135,7 +134,7 @@ EOF
 }
 
 #------------------------{ System Info commands }--------------------------------------------------
-system_info () {
+system_info(){
     ssh $SSH_OPT $target "
         printf '\n${BLD}Hostname:${DEF}\n'
         hostname
@@ -171,21 +170,21 @@ system_info () {
 }
 
 #------------------------{ Show\Edit ssh config }--------------------------------------------------
-show_conf () { clear; ssh -G $target; pause; }
-edit_conf () { $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
+show_conf(){ clear; ssh -G $target; pause; }
+edit_conf(){ $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
 
 #------------------------{ Pause function }--------------------------------------------------------
-pause () {
+pause(){
     local  mess=${1:-'press any key to continue'}
     printf "\n$COF$BLD$mess\n"
     read   -srn1
     printf "\n$DEF$CON"
 }
 #------------------------{ SSH to target server }--------------------------------------------------
-go_to_target () { clear; ssh $SSH_OPT $target || pause; }
+go_to_target(){ clear; ssh $SSH_OPT $target || pause; }
 
 #------------------------{ Add aliases }-----------------------------------------------------------
-add_aliases () {
+add_aliases(){
     scp $SSH_OPT ~/.bash_aliases $target:~
     ssh $SSH_OPT $target "grep '. ~/.bash_aliases' .bashrc || echo '. ~/.bash_aliases' >> .bashrc"
 }
@@ -214,21 +213,21 @@ group_run(){
 }
 
 #------------------------{ Run command }-----------------------------------------------------------
-run_command () { ssh $SSH_OPT $target $command; }
+run_command(){ ssh $SSH_OPT $target $command; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey () { clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
+add_sshkey(){ clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
-portunneling () { ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
+portunneling(){ ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
 #------------------------{ Exit function }---------------------------------------------------------
-bye () { printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
+bye(){ printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
 
 #------------------------------{ Dialog functions }------------------------------------------------
 #------------------------{ Change alternative username }-------------------------------------------
-username () {
+username(){
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
                         --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
@@ -238,14 +237,14 @@ username () {
 }
 
 #------------------------{ Change local port for tunnelling }--------------------------------------
-local_port () {
+local_port(){
     new_local=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                        --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
     LOCAL=${new_local:-$LOCAL}
 }
 
 #------------------------{ Change remote port for tunnelling }-------------------------------------
-remote_port () {
+remote_port(){
     new_remote=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                         --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
@@ -264,7 +263,7 @@ uploader(){
     scp -r $SSH_OPT $ufilename $target:"$DEST/"
 }
 
-copy_files () {
+copy_files(){
     local runner=
     [[ $group ]] && runner='group_run'
     ufilename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
@@ -288,7 +287,7 @@ upload(){
 	esac;   upload
 }
 
-download () {
+download(){
     [[ $dfilelist ]] || {
         dfilelist=$(ssh $SSH_OPT $target ls -sh1 $DEST 2>&1) \
             && dfilelist=( $(awk '{print $2,$1}' <<< "$dfilelist") ) \
@@ -312,7 +311,7 @@ download () {
 }
 
 #------------------------{ Switch menu mode to contents view or full list }------------------------
-new_list () {
+new_list(){
     list=(); match=
     for item in "${fullist[@]}"; {
         case         $item:$match in
@@ -324,7 +323,7 @@ new_list () {
     [[ ${list[*]} ]] && echo "filter='$filter'" > "$tmpfile" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
-contents_menu () {
+contents_menu(){
 	filter=$(dialog --output-fd 1 --ok-label "SELECT" --extra-button --extra-label "RUN COMMAND" --cancel-label "BACK" \
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 	case $filter:$? in
@@ -336,7 +335,7 @@ contents_menu () {
 }
 
 #------------------------{ First dialog - Select host }--------------------------------------------
-first_dialog () {
+first_dialog(){
     group=
     dfilelist=
     [[ $OPT =~ name ]] && oklbl='GET NAME' extra= || oklbl='CONNECT' extra='--extra-button'
@@ -356,7 +355,7 @@ first_dialog () {
 }
 
 #------------------------{ Second dialog - Select command }----------------------------------------
-second_dialog () {
+second_dialog(){
     group="$1"
     local headings connect commands runner
     runner= commands='cmdlist[@]' connect='--extra-button' headings="Select command to run on host \Z4$target\Z0. $USERNOTE"

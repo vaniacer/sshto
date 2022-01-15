@@ -19,6 +19,7 @@ cmdlist_renew(){
         "free -h"  "Show free memory"
         "df  -ih"  "Show free inodes"
         "df   -h"  "Show free disk space"
+        "Custom"   "Run custom command on \Z4$target\Z0"
         ''         ''
         "Info"     "Full system info"
         "Sshkey"   "Add my ssh key to \Z4$target\Z0"
@@ -44,6 +45,7 @@ cmdlist_renew(){
         "free -h"  "Show free memory"
         "df  -ih"  "Show free inodes"
         "df   -h"  "Show free disk space"
+        "Custom"   "Run custom command on \Z4$group\Z0"
         ''         ''
         "Info"     "Full system info"
         "Alias"    "Add my usefull aliases to \Z4$group\Z0"
@@ -224,8 +226,7 @@ portunneling(){ ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sl
 #------------------------{ Exit function }---------------------------------------------------------
 bye(){ printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
-
-#------------------------------{ Dialog functions }------------------------------------------------
+#============================>-{ Dialog functions }-<==============================================
 #------------------------{ Change alternative username }-------------------------------------------
 username(){
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
@@ -233,6 +234,20 @@ username(){
 	case $new_user:$? in
                  *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-oUser=$GUEST"; USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
+	esac
+}
+
+#------------------------{ Create custom command }-------------------------------------------------
+custom(){
+    local runner=
+    [[ $group ]] && runner='group_run'
+    custom_command=$(dialog --ok-label "RUN" --cancel-label "BACK" --inputbox --output-fd 1 \
+                     "Write down your command here:" 8 120 "$custom_command"); ec=$?
+          command="$custom_command"
+	case $command:$ec in
+	           '':0) custom;;
+                *:0) clear; $runner run_command; pause;;
+                *:*) return;;
 	esac
 }
 
@@ -368,8 +383,9 @@ second_dialog(){
            Sshkey:0) add_sshkey  ;;
             Alias:0) clear; $runner add_aliases; pause;;
              Info:0) clear; $runner system_info; pause;;
-             Copy:0) copy_files $group;;
-           Upload:0) upload     $group;;
+             Copy:0) copy_files  ;;
+           Upload:0) upload      ;;
+           Custom:0) custom      ;;
          Username:0) username    ;;
              Dest:0) downpath    ;;
          Download:0) download    ;;

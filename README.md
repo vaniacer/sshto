@@ -16,6 +16,7 @@ cmdlist_renew () { cmdlist=(
     "free -h"  "Show free memory"
     "df  -ih"  "Show free inodes"
     "df   -h"  "Show free disk space"
+    "Custom"   "Run custom command on $target"
     ''         ''
     "Info"     "Full system info"
     "Sshkey"   "Add my ssh key to $target"

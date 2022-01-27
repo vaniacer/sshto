@@ -111,6 +111,41 @@ how_to_install(){
 }
 
 which dialog &> /dev/null || how_to_install
+#------------------------{ Waiting animation }-----------------------------------------------------
+cursor () {
+    case $1 in
+         on) stty  echo; printf "$CON";;
+        off) stty -echo; printf "$COF";;
+    esac
+}
+
+   x=$[COLUMNS/2-3]
+   y=$[  LINES/2-3]
+sand=( ⠁  ⠂  ⠄  ' ' )
+#  {   small digits    }
+sd=(₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉)
+WAIT(){
+    clear; cursor off; i=0; start=$SECONDS
+    XY $[x-1]  $y    $UND$BLD$RED'       '$DEF                     # _______
+    XY $[x-1] $[y+1]         $RED'╲'$DIM$UND'     '$DEF$red'╱'$DEF # ╲_____╱
+    XY  $x    $[y+2]         $BLU'(  '$BLD$WHT'•'$BLD$BLU')'$DEF   #  (  •)
+    XY  $x    $[y+3]         $BLU' ╲'$YLW'⠖'$BLD$BLU'╱'$DEF        #   ╲⠖╱
+    XY  $x    $[y+4]         $BLU" ╱$YLW${sand[$i]}$BLD$BLU╲"$DEF  #   ╱⠂╲
+    XY  $x    $[y+5]         $BLU'('$YLW'⠴⠷⠦'$BLD$BLU')'$DEF       #  (⠴⠷⠦)
+    XY $[x-1] $[y+6]         $RED'╱'$RED'‾‾‾‾‾'$BLD$RED'╲'$DEF     # ╱‾‾‾‾‾╲
+    XY $[x-1] $[y+7]     $DIM$RED'‾‾‾‾‾‾‾'$DEF                     # ‾‾‾‾‾‾‾
+    ( while true; do sleep 0.07
+        printf -v counter "%03d" $[SECONDS-start]
+        small="${sd[${counter:0:1}]}${sd[${counter:1:1}]}${sd[${counter:2:1}]}"
+        XY $[x-1] $[y+1] $RED'╲'$DIM$UND" $small "$DEF$red'╱'$DEF
+        XY  $x    $[y+4] $BLU" ╱$YLW${sand[$i]}$BLD$BLU╲"$DEF
+#       XY $[x+1] $[y+8] $DEF$BLD"$counter"$DEF
+        ((i++)); (($i==${#sand[@]})) && i=0;
+    done ) & waiter=$!
+}
+
+GO() { [[ -e /proc/$waiter ]] && kill $waiter; cursor on; clear; }
+
 #------------------------{ Yes to ssh }------------------------------------------------------------
 ssh_yes(){
 # If connecting first time send 'yes' on ssh's request.
@@ -198,6 +233,7 @@ group_run(){
     group_list=("${list[@]:2}")
     SSH_OPT_CUR="$SSH_OPT"
     SSH_OPT="$SSH_OPT -o ConnectTimeout=5 -o BatchMode=true"
+    WAIT
     data=$(
         for ((i=0; i<${#group_list[@]}; i+=2)); do
               target="${group_list[$i]}"
@@ -209,8 +245,7 @@ group_run(){
           )  &
         done
     )
-    wait
-    printf -- "$data"
+    GO;  printf -- "$data"
     SSH_OPT="$SSH_OPT_CUR"
 }
 

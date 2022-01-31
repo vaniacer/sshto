@@ -1,4 +1,5 @@
 #!/bin/bash
+
 #--------------------------{ Default values }------------------------------------------------------
   REMOTE=8080   # Remote port for tunneling.
    LOCAL=18080  # Local  port for tunneling.
@@ -245,7 +246,7 @@ group_run(){
           )  &
         done
     )
-    GO;  printf -- "$data"
+    GO; printf -- '%b' "$data"
     SSH_OPT="$SSH_OPT_CUR"
 }
 

@@ -48,6 +48,7 @@ cmdlist_renew(){
         "df   -h"  "Show free disk space"
         "Custom"   "Run custom command on \Z4$group\Z0"
         ''         ''
+        'Yes'      "Say 'yes' to SSH"
         "Info"     "Full system info"
         "Alias"    "Add my usefull aliases to \Z4$group\Z0"
         "Copy"     "Copy selected file or dir to \Z4$group\Z0"
@@ -157,12 +158,12 @@ ssh_yes(){
 #   ssh_yes "-p22 user@localhost"
 assword='
     "assword:" { exit }
-    "$ "       { send "exit\n" }
+    "\$ "      { send "exit\n" }
 '
 expect <<  EOF
-spawn  ssh $1
+spawn  ssh $target
 expect {
-    "yes/no" {
+    "*yes/no*" {
         send "yes\n"
         expect { $assword }
     }
@@ -233,7 +234,7 @@ group_run(){
     func="$1"
     group_list=("${list[@]:2}")
     SSH_OPT_CUR="$SSH_OPT"
-    SSH_OPT="$SSH_OPT -o ConnectTimeout=5 -o BatchMode=true"
+    SSH_OPT="$SSH_OPT -o ConnectTimeout=10 -o BatchMode=true"
     WAIT
     data=$(
         for ((i=0; i<${#group_list[@]}; i+=2)); do
@@ -254,7 +255,7 @@ group_run(){
 run_command(){ ssh $SSH_OPT $target $command; }
 
 #------------------------{ Add ssh key }-----------------------------------------------------------
-add_sshkey(){ clear; ssh_yes "$SSH_OPT $target" > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
+add_sshkey(){ clear; ssh_yes > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
 
 #------------------------{ Tunnelling command}-----------------------------------------------------
 portunneling(){ ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
@@ -419,6 +420,7 @@ second_dialog(){
            Sshkey:0) add_sshkey  ;;
             Alias:0) clear; $runner add_aliases; pause;;
              Info:0) clear; $runner system_info; pause;;
+              Yes:0) clear; $runner ssh_yes    ; pause;;
              Copy:0) copy_files  ;;
            Upload:0) upload      ;;
            Custom:0) custom      ;;

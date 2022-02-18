@@ -1,6 +1,5 @@
 #!/bin/bash
-
-#--------------------------{ Default values }------------------------------------------------------
+#--------------------------{ Default values }---------------------------------------------------------------------------
   REMOTE=8080   # Remote port for tunneling.
    LOCAL=18080  # Local  port for tunneling.
    GUEST=$USER  # Alternative username to login with.
@@ -10,7 +9,8 @@
      OPT=$1     # Options
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
 CONFILES=$(echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
-#------------------------{ Add your commands to this list }----------------------------------------
+knwhosts=~/.ssh/known_hosts # Path to known_hosts file.
+#------------------------{ Add your commands to this lists }------------------------------------------------------------
 cmdlist_renew(){
     cmdlist=(
         #Command#  #Description#
@@ -22,6 +22,7 @@ cmdlist_renew(){
         "df   -h"  "Show free disk space"
         "Custom"   "Run custom command on \Z4$target\Z0"
         ''         ''
+        'Yes'      "Say 'yes' to SSH"
         "Info"     "Full system info"
         "Sshkey"   "Add my ssh key to \Z4$target\Z0"
         "Alias"    "Add my usefull aliases to \Z4$target\Z0"
@@ -57,7 +58,7 @@ cmdlist_renew(){
         "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$group:${DEST}\Z0"
     )
 }
-
+#-----------------------------------------------------------------------------------------------------------------------
 confile=~/.sshtorc
 tmpfile=/tmp/sshtorc
 [[ -e $confile ]] && . "$confile"
@@ -113,7 +114,7 @@ how_to_install(){
 }
 
 which dialog &> /dev/null || how_to_install
-#------------------------{ Waiting animation }-----------------------------------------------------
+#------------------------{ Waiting animation }--------------------------------------------------------------------------
 cursor () {
     case $1 in
          on) stty  echo; printf "$CON";;
@@ -148,31 +149,22 @@ WAIT(){
 
 GO() { [[ -e /proc/$waiter ]] && kill $waiter; cursor on; clear; }
 
-#------------------------{ Yes to ssh }------------------------------------------------------------
-ssh_yes(){
-# If connecting first time send 'yes' on ssh's request.
-# Expect must be installed on server.  Options:
-#   $1 - ssh address with parameters(if needed)
-#
-# Usage example:
-#   ssh_yes "-p22 user@localhost"
-assword='
-    "assword:" { exit }
-    "\$ "      { send "exit\n" }
-'
-expect <<  EOF
-spawn  ssh $target
-expect {
-    "*yes/no*" {
-        send "yes\n"
-        expect { $assword }
-    }
-    $assword
-}
-EOF
+#------------------------{ Pause function }-----------------------------------------------------------------------------
+pause(){
+    local  mess=${1:-'press any key to continue'}
+    printf "\n$COF$BLD$mess\n"
+    read   -srn1
+    printf "\n$DEF$CON"
 }
 
-#------------------------{ System Info commands }--------------------------------------------------
+#------------------------{ Yes to ssh }---------------------------------------------------------------------------------
+ssh_yes(){
+    hostname=${hostnames["$target"]}
+    fprint=($(ssh-keyscan -H "$hostname" 2>/dev/null))
+    grep -q "${fprint[2]}" "$knwhosts" || echo "${fprint[@]}" >> "$knwhosts"
+}
+
+#------------------------{ System Info commands }-----------------------------------------------------------------------
 system_info(){
     ssh $SSH_OPT $target "
         printf '\n${BLD}Hostname:${DEF}\n'
@@ -208,27 +200,20 @@ system_info(){
     "
 }
 
-#------------------------{ Show\Edit ssh config }--------------------------------------------------
+#------------------------{ Show\Edit ssh config }-----------------------------------------------------------------------
 show_conf(){ clear; ssh -G $target; pause; }
 edit_conf(){ $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
 
-#------------------------{ Pause function }--------------------------------------------------------
-pause(){
-    local  mess=${1:-'press any key to continue'}
-    printf "\n$COF$BLD$mess\n"
-    read   -srn1
-    printf "\n$DEF$CON"
-}
-#------------------------{ SSH to target server }--------------------------------------------------
+#------------------------{ SSH to target server }-----------------------------------------------------------------------
 go_to_target(){ clear; ssh $SSH_OPT $target || pause; }
 
-#------------------------{ Add aliases }-----------------------------------------------------------
+#------------------------{ Add aliases }--------------------------------------------------------------------------------
 add_aliases(){
     scp $SSH_OPT ~/.bash_aliases $target:~
     ssh $SSH_OPT $target "grep '. ~/.bash_aliases' .bashrc || echo '. ~/.bash_aliases' >> .bashrc"
 }
 
-#------------------------{ Run function on a group of servers }------------------------------------
+#------------------------{ Run function on a group of servers }---------------------------------------------------------
 group_run(){
     local func group_list data
     func="$1"
@@ -243,7 +228,7 @@ group_run(){
           (  code="$BLD$GRN"
              data=$( $func 2>&1 ) || code="$BLD$RED"
              data=$( sed ':a;N;$!ba;s/\n/\\n/g' <<< "$data" )
-             echo "$code----{ $target }----$DEF\\n${data:-fail}\\n"
+             echo "$code----{ $target }----$DEF\\n${data:-Command did not output anything.}\\n"
           )  &
         done
     )
@@ -251,20 +236,20 @@ group_run(){
     SSH_OPT="$SSH_OPT_CUR"
 }
 
-#------------------------{ Run command }-----------------------------------------------------------
+#------------------------{ Run command }--------------------------------------------------------------------------------
 run_command(){ ssh $SSH_OPT $target $command; }
 
-#------------------------{ Add ssh key }-----------------------------------------------------------
+#------------------------{ Add ssh key }--------------------------------------------------------------------------------
 add_sshkey(){ clear; ssh_yes > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
 
-#------------------------{ Tunnelling command}-----------------------------------------------------
+#------------------------{ Tunnelling command}--------------------------------------------------------------------------
 portunneling(){ ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
-#------------------------{ Exit function }---------------------------------------------------------
+#------------------------{ Exit function }------------------------------------------------------------------------------
 bye(){ printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
 
-#============================>-{ Dialog functions }-<==============================================
-#------------------------{ Change alternative username }-------------------------------------------
+#============================>-{ Dialog functions }-<===================================================================
+#------------------------{ Change alternative username }----------------------------------------------------------------
 username(){
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
                         --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
@@ -274,7 +259,7 @@ username(){
 	esac
 }
 
-#------------------------{ Create custom command }-------------------------------------------------
+#------------------------{ Create custom command }----------------------------------------------------------------------
 custom(){
     local runner=
     [[ $group ]] && runner='group_run'
@@ -288,21 +273,21 @@ custom(){
 	esac
 }
 
-#------------------------{ Change local port for tunnelling }--------------------------------------
+#------------------------{ Change local port for tunnelling }-----------------------------------------------------------
 local_port(){
     new_local=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                        --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
     LOCAL=${new_local:-$LOCAL}
 }
 
-#------------------------{ Change remote port for tunnelling }-------------------------------------
+#------------------------{ Change remote port for tunnelling }----------------------------------------------------------
 remote_port(){
     new_remote=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
                         --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
 }
 
-#------------------------{ Upload\Download dialogs }-----------------------------------------------
+#------------------------{ Upload\Download dialogs }--------------------------------------------------------------------
 downpath(){
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
@@ -362,7 +347,7 @@ download(){
 	esac;   download
 }
 
-#------------------------{ Switch menu mode to contents view or full list }------------------------
+#------------------------{ Switch menu mode to contents view or full list }---------------------------------------------
 new_list(){
     list=(); match=
     for item in "${fullist[@]}"; {
@@ -386,7 +371,7 @@ contents_menu(){
 	esac;           first_dialog
 }
 
-#------------------------{ First dialog - Select host }--------------------------------------------
+#------------------------{ First dialog - Select host }-----------------------------------------------------------------
 first_dialog(){
     group=
     dfilelist=
@@ -406,12 +391,12 @@ first_dialog(){
   	esac
 }
 
-#------------------------{ Second dialog - Select command }----------------------------------------
+#------------------------{ Second dialog - Select command }-------------------------------------------------------------
 second_dialog(){
-    group="$1"
-    local headings connect commands runner
-    runner= commands='cmdlist[@]' connect='--extra-button' headings="Select command to run on host \Z4$target\Z0. $USERNOTE"
-    [[ $group ]] && filter=$group runner='group_run' commands='cmdlist_group[@]' connect= headings="Select command to run on group \Z4$group\Z0. $USERNOTE"
+    local headings  commands                    connect                  singleornot         runner
+        group="$1"  commands='cmdlist[@]'       connect='--extra-button' singleornot='host'  runner=
+    [[ $group ]] && commands='cmdlist_group[@]' connect= filter="$group" singleornot='group' runner='group_run'
+    headings="Select command to run on $singleornot \Z4$group\Z0. $USERNOTE"
     new_list
     cmdlist_renew
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \
@@ -438,8 +423,9 @@ second_dialog(){
 	esac;            second_dialog "$group"
 }
 
-#-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }----------------
-while read -r name desc; do
+#-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }-------------------------------------
+declare    -A      hostnames
+while read -r name hostname desc; do
     case $name in
         'DUMMY') name="{ $desc }" name_length=${#name}
                  name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
@@ -448,8 +434,27 @@ while read -r name desc; do
                  content+=( "$desc" ); desc=$(line - 20);;
            '#'*) continue;;
     esac
-    fullist+=( "$name" "$desc" ) #Add HostName and Description to the list
-done < <(sed -n '/*/d; s/#Host \(.*\)#\(.*\)#.*/\1\2/p; s/ #/ /; s/Host //p' $CONFILES)
+    hostnames["$name"]=$hostname #Create host-hostname pairs in hostnames array
+    fullist+=("$name" "$desc")   #Add Host and Description to the list
+done < <(awk '
+/Host /{
+    strt=1
+    host=$2
+    desc=gensub(/^.*Host .* #(.*)/, "\\1", "g", $0)
+    desc=gensub(/(.*)#.*/,          "\\1", "g", desc)
+    next
+}
+strt && host == "DUMMY"{
+    hostname=$2
+    print host, "DUMMY", desc
+    strt=0
+}
+strt && /HostName /{
+    hostname=$2
+    print host, hostname, desc
+    strt=0
+}'  $CONFILES)
+
 list=( "${fullist[@]}" )
 [[ $filter ]] && new_list
 

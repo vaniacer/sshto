@@ -396,7 +396,7 @@ second_dialog(){
     local headings  commands                    connect                  singleornot         runner
         group="$1"  commands='cmdlist[@]'       connect='--extra-button' singleornot='host'  runner=
     [[ $group ]] && commands='cmdlist_group[@]' connect= filter="$group" singleornot='group' runner='group_run'
-    headings="Select command to run on $singleornot \Z4$group\Z0. $USERNOTE"
+    headings="Select command to run on $singleornot \Z4${group:-$target}\Z0. $USERNOTE"
     new_list
     cmdlist_renew
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \

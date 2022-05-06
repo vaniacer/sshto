@@ -8,7 +8,7 @@
   EDITOR=nano   # Confile editor.
      OPT=$1     # Options
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
-CONFILES=$(echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
+CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
 knwhosts=~/.ssh/known_hosts # Path to known_hosts file.
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
 cmdlist_renew(){
@@ -96,24 +96,25 @@ XY(){ printf "\e[$2;${1}H$3"; }                                     #|
 line(){ printf -v _L %$2s; printf -- "${_L// /$1}"; }               #|
 # Create sequence like {0..(X-1)}, usage: que 10                     |
 que(){ printf -v _N %$1s; _N=(${_N// / 1}); printf "${!_N[*]}"; }   #|
-#----------------{ Check that dialog is installed }------------------+
+#------------{ Check that dialog and gawk are installed }------------+
 install_help="
-${BLD}sshto$DEF requires that the package '${GRN}dialog$DEF' is installed.
+${BLD}sshto$DEF requires that the package '${GRN}%b$DEF' is installed.
 Type this into the terminal and press return:
 
-    ${BLD}%s$DEF
+    ${BLD}%b$DEF
 
 Then run ${BLD}sshto$DEF again
 "
 how_to_install(){
-    which yum     &> /dev/null && installer='yum -y install dialog'
-    which brew    &> /dev/null && installer='brew install dialog'
-    which apt-get &> /dev/null && installer='apt-get install -y dialog'
-    printf "$install_help" "$installer"
+    local package=$1
+    which yum     &> /dev/null && installer="yum -y install $package"
+    which brew    &> /dev/null && installer="brew install $package"
+    which apt-get &> /dev/null && installer="apt-get install -y $package"
+    printf -- "$install_help" "$package" "$installer"
     exit 1
 }
 
-which dialog &> /dev/null || how_to_install
+for package in dialog gawk; { which $package &> /dev/null || how_to_install $package; }
 #------------------------{ Waiting animation }--------------------------------------------------------------------------
 cursor () {
     case $1 in
@@ -436,7 +437,7 @@ while read -r name hostname desc; do
     esac
     hostnames["$name"]=$hostname #Create host-hostname pairs in hostnames array
     fullist+=("$name" "$desc")   #Add Host and Description to the list
-done < <(awk '
+done < <(gawk '
 /Host /{
     strt=1
     host=$2

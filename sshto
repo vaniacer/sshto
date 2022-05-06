@@ -128,14 +128,16 @@ cursor () {
 sand=( ⠁  ⠂  ⠄  ' ' )
 #  {   small digits    }
 sd=(₀ ₁ ₂ ₃ ₄ ₅ ₆ ₇ ₈ ₉)
+bs='⠴⠷⠦' # bottom sand pile
+ts='⠖'   # top sand pile
 WAIT(){
     clear; cursor off; i=0; start=$SECONDS
     XY $[x-1]  $y    $UND$BLD$RED'       '$DEF                     # _______
     XY $[x-1] $[y+1]         $RED'╲'$DIM$UND'     '$DEF$red'╱'$DEF # ╲_____╱
     XY  $x    $[y+2]         $BLU'(  '$BLD$WHT'•'$BLD$BLU')'$DEF   #  (  •)
-    XY  $x    $[y+3]         $BLU' ╲'$YLW'⠖'$BLD$BLU'╱'$DEF        #   ╲⠖╱
+    XY  $x    $[y+3]         $BLU' ╲'$YLW"$ts"$BLD$BLU'╱'$DEF      #   ╲⠖╱
     XY  $x    $[y+4]         $BLU" ╱$YLW${sand[$i]}$BLD$BLU╲"$DEF  #   ╱⠂╲
-    XY  $x    $[y+5]         $BLU'('$YLW'⠴⠷⠦'$BLD$BLU')'$DEF       #  (⠴⠷⠦)
+    XY  $x    $[y+5]         $BLU'('$YLW"$bs"$BLD$BLU')'$DEF       #  (⠴⠷⠦)
     XY $[x-1] $[y+6]         $RED'╱'$RED'‾‾‾‾‾'$BLD$RED'╲'$DEF     # ╱‾‾‾‾‾╲
     XY $[x-1] $[y+7]     $DIM$RED'‾‾‾‾‾‾‾'$DEF                     # ‾‾‾‾‾‾‾
     ( while true; do sleep 0.07

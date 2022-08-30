@@ -355,8 +355,8 @@ new_list(){
     list=(); match=
     for item in "${fullist[@]}"; {
         case         $item:$match in
-                 -*\ *\ *-:1) break  ;;
-           -*\ $filter\ *-:*) match=1;;
+                 *{\ *\ }*:1) break  ;;
+           *{\ $filter\ }*:*) match=1;;
         esac
         [[ $match ]] && list+=( "$item" )
     }
@@ -386,7 +386,8 @@ first_dialog(){
                     --cancel-label "EXIT" \
 	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
 	case $target:$? in
-       -*\ *\ *-:*) first_dialog ;;
+       *{\ *\ }*:0) first_dialog ;;
+       *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
                *:2) contents_menu;;
       	       *:3) second_dialog;;

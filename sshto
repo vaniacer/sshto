@@ -9,7 +9,10 @@
      OPT=$1     # Options
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
 CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
-knwhosts=~/.ssh/known_hosts # Path to known_hosts file.
+knwhosts=~/.ssh/known_hosts    # Path to known_hosts file.
+sshto_script[0]=~              # Path to sshto script
+sshto_script[1]=.sshto_script  # Sshto script filename
+sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full path
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
 cmdlist_renew(){
     cmdlist=(
@@ -21,6 +24,7 @@ cmdlist_renew(){
         "df  -ih"  "Show free inodes"
         "df   -h"  "Show free disk space"
         "Custom"   "Run custom command on \Z4$target\Z0"
+        "Script"   "Run custom script on \Z4$target\Z0"
         ''         ''
         'Yes'      "Say 'yes' to SSH"
         "Info"     "Full system info"
@@ -48,6 +52,7 @@ cmdlist_renew(){
         "df  -ih"  "Show free inodes"
         "df   -h"  "Show free disk space"
         "Custom"   "Run custom command on \Z4$group\Z0"
+        "Script"   "Run custom script on \Z4$group\Z0"
         ''         ''
         'Yes'      "Say 'yes' to SSH"
         "Info"     "Full system info"
@@ -239,8 +244,12 @@ group_run(){
     SSH_OPT="$SSH_OPT_CUR"
 }
 
-#------------------------{ Run command }--------------------------------------------------------------------------------
+#------------------------{ Run command/script }-------------------------------------------------------------------------
 run_command(){ ssh $SSH_OPT $target $command; }
+run_script (){
+    scp -r $SSH_OPT "${sshto_script[2]}" $target:~/ || return 1
+    ssh    $SSH_OPT "$target" "~/${sshto_script[1]}"
+}
 
 #------------------------{ Add ssh key }--------------------------------------------------------------------------------
 add_sshkey(){ clear; ssh_yes > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; }
@@ -262,7 +271,7 @@ username(){
 	esac
 }
 
-#------------------------{ Create custom command }----------------------------------------------------------------------
+#------------------------{ Create custom command/script }---------------------------------------------------------------
 custom(){
     local runner=
     [[ $group ]] && runner='group_run'
@@ -273,6 +282,22 @@ custom(){
 	           '':0) custom;;
                 *:0) clear; $runner run_command; pause;;
                 *:*) return;;
+	esac
+}
+
+script(){
+    [[ -f ${sshto_script[2]} ]] || {
+        echo  -e '#!/bin/bash\necho "Running sshto script"' > "${sshto_script[2]}"
+        chmod +x "${sshto_script[2]}"
+    }
+
+    script_text=$(cat "${sshto_script[2]}")
+    dialog --ok-label "RUN" --extra-button --extra-label "EDIT" --help-button --help-label "BACK" \
+           --msgbox "$script_text" 40 120
+    case $? in
+         0) [[ $script_text ]] || script; clear; $runner run_script; pause;;
+         3) $EDITOR "${sshto_script[2]}"; script;;
+         2) second_dialog;;
 	esac
 }
 
@@ -413,6 +438,7 @@ second_dialog(){
              Copy:0) copy_files  ;;
            Upload:0) upload      ;;
            Custom:0) custom      ;;
+           Script:0) script      ;;
          Username:0) username    ;;
              Dest:0) downpath    ;;
          Download:0) download    ;;

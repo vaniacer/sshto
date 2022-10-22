@@ -5,11 +5,15 @@
    GUEST=$USER  # Alternative username to login with.
     DEST='~'    # Destination folder on target server to download\upload files.
     TIME=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
-  EDITOR=nano   # Confile editor.
-     OPT=$1     # Options
+  EDITOR=nano   # SSH confile editor.
+  LSEXIT=true   # Perform ls on exit true|false.
+     OPT=$1     # Options.
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
-CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]}) # SSH confiles list.
+CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]})   # SSH confiles list.
 knwhosts=~/.ssh/known_hosts    # Path to known_hosts file.
+ confile=~/.sshtorc            # Path to config file, have to be chmod'ed to 600.
+ tmpfile=/tmp/sshtorc-${USER}  # Path to tmp file to save selected context.
+
 sshto_script[0]=~              # Path to sshto script
 sshto_script[1]=.sshto_script  # Sshto script filename
 sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full path
@@ -63,12 +67,7 @@ cmdlist_renew(){
         "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$group:${DEST}\Z0"
     )
 }
-#-----------------------------------------------------------------------------------------------------------------------
-confile=~/.sshtorc
-tmpfile=/tmp/sshtorc-${USER}
-[[ -e $confile ]] && . "$confile"
-[[ -e $tmpfile ]] && . "$tmpfile"
-#--------------------------------------------------------------------+
+#--------------------------------------------------------------------+--------------------------------------------------
 #Color picker, usage: printf ${BLD}${CUR}${RED}${BBLU}"Hello!)"${DEF}|
 #-------------------------+--------------------------------+---------+
 #       Text color        |       Background color         |         |
@@ -150,12 +149,16 @@ WAIT(){
         small="${sd[${counter:0:1}]}${sd[${counter:1:1}]}${sd[${counter:2:1}]}"
         XY $[x-1] $[y+1] $RED'╲'$DIM$UND" $small "$DEF$red'╱'$DEF
         XY  $x    $[y+4] $BLU" ╱$YLW${sand[$i]}$BLD$BLU╲"$DEF
-#       XY $[x+1] $[y+8] $DEF$BLD"$counter"$DEF
         ((i++)); (($i==${#sand[@]})) && i=0;
     done ) & waiter=$!
 }
 
 GO() { [[ -e /proc/$waiter ]] && kill $waiter; cursor on; clear; }
+
+check_confile(){
+    [[ -e $confile  ]] || return
+    [[ $(stat -c "%a %U %G" "$confile") == "600 $USER $USER" ]] && . "$confile"
+}
 
 #------------------------{ Pause function }-----------------------------------------------------------------------------
 pause(){
@@ -258,7 +261,15 @@ add_sshkey(){ clear; ssh_yes > /dev/null; ssh-copy-id -i $KEY $SSH_OPT $target; 
 portunneling(){ ssh $SSH_OPT $target -f -L 127.0.0.1:$LOCAL:127.0.0.1:$REMOTE sleep $TIME; }
 
 #------------------------{ Exit function }------------------------------------------------------------------------------
-bye(){ printf "\n$DEF$CON"; clear; [[ $(uname -s) == "Darwin" ]] && ls -G || ls --color=auto; exit 0; }; trap bye INT
+bye(){
+    printf "\n$DEF$CON"
+    clear
+    $LSEXIT || exit 0
+    lsopts='--color=auto'
+    [[ $(uname -s) == "Darwin" ]] && lsopts='-G'
+    ls $lsopts
+    exit 0
+};  trap bye INT
 
 #============================>-{ Dialog functions }-<===================================================================
 #------------------------{ Change alternative username }----------------------------------------------------------------
@@ -376,6 +387,7 @@ download(){
 }
 
 #------------------------{ Switch menu mode to contents view or full list }---------------------------------------------
+save_tmp(){ echo "$1" > "$tmpfile"; chmod 600 "$tmpfile"; }
 new_list(){
     list=(); match=
     for item in "${fullist[@]}"; {
@@ -385,7 +397,7 @@ new_list(){
         esac
         [[ $match ]] && list+=( "$item" )
     }
-    [[ ${list[*]} ]] && echo "filter='$filter'" > "$tmpfile" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
+    [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
 contents_menu(){
@@ -393,8 +405,8 @@ contents_menu(){
                     --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
 	case $filter:$? in
              All:0) list=( "${fullist[@]}" )
-                    echo "filter=" > $tmpfile;;
-               *:3) second_dialog   "$filter";;
+                    save_tmp       "filter=";;
+               *:3) second_dialog "$filter" ;;
                *:0) new_list;;
 	esac;           first_dialog
 }
@@ -486,8 +498,10 @@ strt && /HostName /{
 }'  $CONFILES)
 
 list=( "${fullist[@]}" )
-[[ $filter ]] && new_list
+[[ -e $tmpfile ]] && . "$tmpfile"
+[[    $filter  ]] &&    new_list
 
 #--{ Go baby, GO!) }--
+check_confile
 first_dialog
 [[ $OPT =~ name ]] && echo $target || bye

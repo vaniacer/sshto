@@ -16,12 +16,16 @@ knwhosts=~/.ssh/known_hosts    # Path to known_hosts file.
 
 sshto_script[0]=~              # Path to sshto script
 sshto_script[1]=.sshto_script  # Sshto script filename
-sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full path
+sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full
+#------------------------{ Add some tabs }------------------------------------------------------------------------------
+tabbed(){ target=$target gnome-terminal --title=$target --tab -qe "${1/_target_/$target}"; } # Terminal command for tabs
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
 cmdlist_renew(){
     cmdlist=(
         #Command#  #Description#
         "Username" "Change ssh username to \Z2$GUEST\Z0"
+        "Add tab"  "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
+        "Ssh tab"  "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
         ''         ''
         "ls  -la"  "List Files"
         "free -h"  "Show free memory"
@@ -50,6 +54,8 @@ cmdlist_renew(){
     cmdlist_group=(
         #Command#  #Description#
         "Username" "Change ssh username to \Z2$GUEST\Z0"
+        "Add tabs" "Add terminal tabs with \Z3sshto\Z0 for hosts in \Z4$group\Z0 group"
+        "Ssh tabs" "Add terminal tabs with \Z3ssh\Z0 to hosts from \Z4$group\Z0 group"
         ''         ''
         "ls  -la"  "List Files"
         "free -h"  "Show free memory"
@@ -231,9 +237,16 @@ group_run(){
     group_list=("${list[@]:2}")
     SSH_OPT_CUR="$SSH_OPT"
     SSH_OPT="$SSH_OPT -o ConnectTimeout=10 -o BatchMode=true"
+    case $func in tabbed*)
+        for ((i=0;  i<${#group_list[@]}; i+=2)); do
+              target="${group_list[$i]}"
+              tabbed "${2/_target_/$target}"
+        done
+        return;;
+    esac
     WAIT
     data=$(
-        for ((i=0; i<${#group_list[@]}; i+=2)); do
+        for ((i=0;  i<${#group_list[@]}; i+=2)); do
               target="${group_list[$i]}"
           [[ $target =~ ^-+.*-+$ ]] && continue
           (  code="$BLD$GRN"
@@ -443,10 +456,12 @@ second_dialog(){
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \
                      --menu "$headings" 0 0 0 "${!commands}")
 	case $command:$? in
-           Sshkey:0) add_sshkey  ;;
+       "Add tab"*:0) $runner tabbed "$0";;
+       "Ssh tab"*:0) $runner tabbed "ssh $SSH_OPT _target_";;
             Alias:0) clear; $runner add_aliases; pause;;
              Info:0) clear; $runner system_info; pause;;
               Yes:0) clear; $runner ssh_yes    ; pause;;
+           Sshkey:0) add_sshkey  ;;
              Copy:0) copy_files  ;;
            Upload:0) upload      ;;
            Custom:0) custom      ;;
@@ -503,5 +518,6 @@ list=( "${fullist[@]}" )
 
 #--{ Go baby, GO!) }--
 check_confile
-first_dialog
-[[ $OPT =~ name ]] && echo $target || bye
+[[ $target      ]] || first_dialog
+[[ $OPT =~ name ]] && { echo $target; exit; }
+[[ $target      ]] && second_dialog

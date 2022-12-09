@@ -97,9 +97,10 @@ All preset variables and functions could be tweaked via *~/.sshtorc* config file
 echo "REMOTE=9000  # Remote port for tunneling." >> ~/.sshtorc
 </pre>
 
-You can customize dialog itself a bit by creating a config file:
+You can customize dialog itself a bit by creating and editing it's config file:
 <pre>
 dialog --create-rc ~/.dialogrc
+nano ~/.dialogrc
 </pre>
 # How to install
 Clone\download this project, go to it's folder and run:

@@ -4,36 +4,40 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![screeenshot](https://user-images.githubusercontent.com/18072680/93428736-a2ff2800-f8c8-11ea-9af4-d04a18022d8e.png)
+![new_commands](https://user-images.githubusercontent.com/18072680/206651725-d727ca36-637b-44e7-81f6-40afca6d8e12.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:</br>
 <pre>
-cmdlist_renew () { cmdlist=(
+cmdlist=(
     #Command#  #Description#
-    "Username" "Change ssh username to $GUEST"
+    "Username" "Change ssh username to \Z2$GUEST\Z0"
+    "Add tab"  "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
+    "Ssh tab"  "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
     ''         ''
     "ls  -la"  "List Files"
     "free -h"  "Show free memory"
     "df  -ih"  "Show free inodes"
     "df   -h"  "Show free disk space"
-    "Custom"   "Run custom command on $target"
+    "Custom"   "Run custom command on \Z4$target\Z0"
+    "Script"   "Run custom script on \Z4$target\Z0"
     ''         ''
+    'Yes'      "Say 'yes' to SSH"
     "Info"     "Full system info"
-    "Sshkey"   "Add my ssh key to $target"
-    "Alias"    "Add my usefull aliases to $target"
-    "Copy"     "Copy selected file or dir to $target"
+    "Sshkey"   "Add my ssh key to \Z4$target\Z0"
+    "Alias"    "Add my usefull aliases to \Z4$target\Z0"
+    "Copy"     "Copy selected file or dir to \Z4$target\Z0"
     ''         ''
-    "Dest"     "Change destination folder $DEST on $target"
-    "Upload"   "Upload   file or folder from $PWD to $target:$DEST"
-    "Download" "Download file or folder from $target:$DEST to $PWD"
+    "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+    "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
+    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
     ''         ''
-    "Local"    "Change local  port $LOCAL"
-    "Remote"   "Change remote port $REMOTE"
-    "Tunnel"   "Start portunneling from $target port $REMOTE to local port $LOCAL"
+    "Local"    "Change local  port \Z1$LOCAL\Z0"
+    "Remote"   "Change remote port \Z1$REMOTE\Z0"
+    "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
     ''         ''
     "ShowConf" "Show ssh config for this host"
     "EditConf" "Edit ssh config for this host"
-); }
+)
 </pre>
 First collumn - command, second - description.</br>
 Simple commands like 'ls -la' can be added as is.</br>
@@ -105,7 +109,7 @@ sudo rm /usr/bin/sshto
 alt="ssh config guide" width="240" height="180" border="10"/></a></br>
 Tom Lawrens video guide about ssh config and sshto
 
-[![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sshto?locale.x=en_US) Feel free to support the project!)</br>
+[![paypal](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/sshto?locale.x=en_US) <sup>Feel free to support the project!)</sup></br>
 
 BTC: 1LxRxsyXP389YW3Ezw9YzNetE5VYj1RaJf</br>
 ![btc](https://user-images.githubusercontent.com/18072680/106382955-f2f00e80-63d3-11eb-9316-b6653225820c.png)

@@ -54,7 +54,7 @@ HostName 192.168.0.1
 Port 22
 User admin
 </pre>
-Optional start menu delimiters '---{ Group Description }---' could added like this:</br>
+Optional start menu delimiters '---{ Group Description }---' could be added like this:</br>
 <pre>
 #Host DUMMY #Group Description#
 </pre>

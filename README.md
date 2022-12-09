@@ -46,17 +46,20 @@ Empty string is used as a delimiter.</br>
 You can quick jump to the selected server via <i>CONNECT</i> button.</br>
 When you done press ^D it'll bring you back to <i>sshto</i> commands section.</br>
 </br>
-Hosts description needs to be added like this:</br>
+
+Optional description could to be added like this:</br>
 <pre>
-Host server1 #DESCRIPTION
+Host server1 #Description could be more than one word
 HostName 192.168.0.1
 Port 22
 User admin
 </pre>
-Start menu delimiters '---{ TEXT }---' can be added like this:</br>
+Optional start menu delimiters '---{ Group Description }---' could added like this:</br>
 <pre>
-#Host DUMMY #TEXT#
+#Host DUMMY #Group Description#
 </pre>
+It won't break your *ssh configs* coz it's considered as comments.  
+
 ------
 ~/.ssh/config example:
 <pre>
@@ -89,8 +92,12 @@ Include config_moscow
 Include config_rybinsk
 Include config*
 </pre>
+All preset variables and functions could be tweaked via *~/.sshtorc* config file:
+<pre>
+echo "REMOTE=9000  # Remote port for tunneling." >> ~/.sshtorc
+</pre>
 
-You can customize dialog colors by creating a config file:
+You can customize dialog itself a bit by creating a config file:
 <pre>
 dialog --create-rc ~/.dialogrc
 </pre>

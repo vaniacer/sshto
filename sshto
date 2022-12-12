@@ -493,7 +493,7 @@ while read -r name hostname desc; do
     esac
     hostnames["$name"]=$hostname #Create host-hostname pairs in hostnames array
     fullist+=("$name" "$desc")   #Add Host and Description to the list
-done < <(gawk '
+done < <(gawk 'BEGIN{IGNORECASE = 1}
 /Host /{
     strt=1
     host=$2

@@ -3,7 +3,9 @@
   REMOTE=8080   # Remote port for tunneling.
    LOCAL=18080  # Local  port for tunneling.
    GUEST=$USER  # Alternative username to login with.
-    DEST='~'    # Destination folder on target server to download\upload files.
+    DEST='~'    # Destination folder on target server to download\upload files and sshfs mount.
+    home=$PWD   # Destination folder on local  server to download\upload files and sshfs mount.
+sshfsopt=       # Sshfs options if needed
     TIME=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
   EDITOR=nano   # SSH confile editor.
   LSEXIT=true   # Perform ls on exit true|false.
@@ -40,9 +42,12 @@ cmdlist_renew(){
         "Alias"    "Add my usefull aliases to \Z4$target\Z0"
         "Copy"     "Copy selected file or dir to \Z4$target\Z0"
         ''         ''
+        "Home"     "Change home folder \Z4$home\Z0 on local server"
         "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-        "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
-        "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
+        "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
+        "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
+        "Mount"    "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
+        "Unmount"  "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
         ''         ''
         "Local"    "Change local  port \Z1$LOCAL\Z0"
         "Remote"   "Change remote port \Z1$REMOTE\Z0"
@@ -69,8 +74,9 @@ cmdlist_renew(){
         "Alias"    "Add my usefull aliases to \Z4$group\Z0"
         "Copy"     "Copy selected file or dir to \Z4$group\Z0"
         ''         ''
+        "Home"     "Change home folder \Z4$home\Z0 on local server"
         "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$group\Z0"
-        "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$group:${DEST}\Z0"
+        "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$group:${DEST}\Z0"
     )
 }
 #--------------------------------------------------------------------+--------------------------------------------------
@@ -121,10 +127,10 @@ how_to_install(){
     which brew    &> /dev/null && installer="brew install $package"
     which apt-get &> /dev/null && installer="apt-get install -y $package"
     printf -- "$install_help" "$package" "$installer"
-    exit 1
+    [[ $2 ]] && exit $2
 }
 
-for package in dialog gawk; { which $package &> /dev/null || how_to_install $package; }
+for package in dialog gawk; { which $package &> /dev/null || how_to_install $package 1; }
 #------------------------{ Waiting animation }--------------------------------------------------------------------------
 cursor () {
     case $1 in
@@ -339,7 +345,7 @@ remote_port(){
     REMOTE=${new_remote:-$REMOTE}
 }
 
-#------------------------{ Upload\Download dialogs }--------------------------------------------------------------------
+#------------------------{ Upload\Download and mount dialogs }----------------------------------------------------------
 downpath(){
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
                        --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
@@ -347,10 +353,23 @@ downpath(){
     dfilelist=
 }
 
+homepath(){
+    new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
+                       --aspect 100 --colors --inputbox 'Change home folder' 10 50 $home)
+    home=${new_path:-$home}
+}
+
 uploader(){
     printf "Uploading $BLD$ufilename$DEF\n"
     scp -r $SSH_OPT $ufilename $target:"$DEST/"
 }
+
+mountdest(){
+    which  sshfs &> /dev/null || { clear; how_to_install sshfs; pause; return; }
+    clear; sshfs $sshfsopt "$target":"$DEST" "$home" || pause
+}
+
+unmountdest(){ mount | grep -q "$home" && umount "$home"; }
 
 copy_files(){
     local runner=
@@ -468,6 +487,9 @@ second_dialog(){
            Script:0) script      ;;
          Username:0) username    ;;
              Dest:0) downpath    ;;
+             Home:0) homepath    ;;
+            Mount:0) mountdest   ;;
+          Unmount:0) unmountdest ;;
          Download:0) download    ;;
             Local:0) local_port  ;;
            Remote:0) remote_port ;;

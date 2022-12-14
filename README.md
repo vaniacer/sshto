@@ -4,9 +4,9 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![new_commands](https://user-images.githubusercontent.com/18072680/206651725-d727ca36-637b-44e7-81f6-40afca6d8e12.png)
+![new_commands](https://user-images.githubusercontent.com/18072680/207667642-dca06163-0874-4f2e-9cc6-9a8fb14930e0.png)
 </br>
-Your commands can be easily added to this list. Just edit this part of the script:</br>
+Your commands can be easily added to this list. Just edit this part of the script:
 <pre>
 cmdlist=(
     #Command#  #Description#
@@ -27,9 +27,12 @@ cmdlist=(
     "Alias"    "Add my usefull aliases to \Z4$target\Z0"
     "Copy"     "Copy selected file or dir to \Z4$target\Z0"
     ''         ''
+    "Home"     "Change home folder \Z4$home\Z0 on local server"
     "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-    "Upload"   "Upload   file or folder from \Z4$PWD\Z0 to \Z4$target:${DEST}\Z0"
-    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$PWD\Z0"
+    "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
+    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
+    "Mount"    "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
+    "Unmount"  "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
     ''         ''
     "Local"    "Change local  port \Z1$LOCAL\Z0"
     "Remote"   "Change remote port \Z1$REMOTE\Z0"

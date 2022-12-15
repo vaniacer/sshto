@@ -505,17 +505,18 @@ second_dialog(){
 #-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }-------------------------------------
 declare    -A      hostnames
 while read -r name hostname desc; do
-    case $name in
-        'DUMMY') name="{ $desc }" name_length=${#name}
-                 name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
-                 printf -v tmp "%${name_left}s_NAME_%${name_right}s"
-                 tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
-                 content+=( "$desc" ); desc=$(line - 20);;
-           '#'*) continue;;
+    case ${name,,} in
+          'dummy') name="{ $desc }" name_length=${#name}
+                   name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
+                   printf -v tmp "%${name_left}s_NAME_%${name_right}s"
+                   tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
+                   content+=( "$desc" ); desc=$(line - 20);;
+             '#'*) continue;;
     esac
     hostnames["$name"]=$hostname #Create host-hostname pairs in hostnames array
     fullist+=("$name" "$desc")   #Add Host and Description to the list
 done < <(gawk '
+BEGIN{IGNORECASE=1}
 /Host /{
     strt=1
     host=$2

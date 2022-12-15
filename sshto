@@ -506,7 +506,7 @@ strt && host == "DUMMY"{
     print host, "DUMMY", desc
     strt=0
 }
-strt && /HostName /{
+tolower($strt) ~ /hostname/{
     hostname=$2
     print host, hostname, desc
     strt=0

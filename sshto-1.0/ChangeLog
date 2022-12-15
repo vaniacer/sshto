@@ -1,2 +1,4 @@
 1.0:
 * Initial release.
+1.1:
+* Case insensitive hostname.

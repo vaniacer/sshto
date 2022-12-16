@@ -294,7 +294,7 @@ bye(){
 #------------------------{ Change alternative username }----------------------------------------------------------------
 username(){
     new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
-                        --aspect 100 --colors --inputbox 'Change alternative username' 10 30 $GUEST)
+                      --colors --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
                  *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-oUser=$GUEST"; USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
@@ -334,28 +334,28 @@ script(){
 #------------------------{ Change local port for tunnelling }-----------------------------------------------------------
 local_port(){
     new_local=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                       --aspect 100 --colors --inputbox 'Change local port' 10 30 $LOCAL)
+                       --colors --inputbox 'Change local port' 10 30 $LOCAL)
     LOCAL=${new_local:-$LOCAL}
 }
 
 #------------------------{ Change remote port for tunnelling }----------------------------------------------------------
 remote_port(){
     new_remote=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                        --aspect 100 --colors --inputbox 'Change remote port' 10 30 $REMOTE)
+                        --colors --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
 }
 
 #------------------------{ Upload\Download and mount dialogs }----------------------------------------------------------
 downpath(){
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
-                       --aspect 100 --colors --inputbox 'Change download folder' 10 50 $DEST)
+                      --colors --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}
     dfilelist=
 }
 
 homepath(){
     new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
-                       --aspect 100 --colors --inputbox 'Change home folder' 10 50 $home)
+                      --colors --inputbox 'Change home folder' 10 50 $home)
     home=${new_path:-$home}
 }
 
@@ -374,7 +374,7 @@ unmountdest(){ mount | grep -q "$home" && umount "$home"; }
 copy_files(){
     local runner=
     [[ $group ]] && runner='group_run'
-    ufilename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --aspect 100 --colors --fselect $PWD/ 10 80)
+    ufilename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --colors --fselect $PWD/ 10 80)
 	case $ufilename:$? in
          $PWD|$PWD/:0) return;;
                   *:0) clear; $runner uploader; pause;;
@@ -385,7 +385,7 @@ copy_files(){
 upload(){
     local runner=
     [[ $group ]] && runner='group_run'
-    ufilelist=( $(ls -sh1 $PWD | awk '{print $2,$1}') )
+    ufilelist=( $(ls -sh1 $home | awk '{print $2,$1}') )
 	ufilename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
                        --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
 	case $? in
@@ -453,7 +453,7 @@ first_dialog(){
 	                --help-label   "CONTENTS" \
 	                --ok-label     "$oklbl" \
                     --cancel-label "EXIT" \
-	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
+	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}")
 	case $target:$? in
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
@@ -475,6 +475,7 @@ second_dialog(){
 	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \
                      --menu "$headings" 0 0 0 "${!commands}")
 	case $command:$? in
+	           '':0) :;;
        "Add tab"*:0) $runner tabbed "$0";;
        "Ssh tab"*:0) $runner tabbed "ssh $SSH_OPT _target_";;
             Alias:0) clear; $runner add_aliases; pause;;
@@ -502,17 +503,21 @@ second_dialog(){
 	esac;            second_dialog "$group"
 }
 
-#-------------{ Create hosts list. Get hosts and descriptions from ~/.ssh/config. }-------------------------------------
+#-------------{ Create the list of hosts. Get hosts and descriptions from ~/.ssh/config* }------------------------------
+desclength=20
 declare    -A      hostnames
 while read -r name hostname desc; do
-    case ${name,,} in
-          'dummy') name="{ $desc }" name_length=${#name}
-                   name_left=$[(40-name_length)/2] name_right=$[40-(name_left+name_length)]
-                   printf -v tmp "%${name_left}s_NAME_%${name_right}s"
-                   tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
-                   content+=( "$desc" ); desc=$(line - 20);;
-             '#'*) continue;;
+    case    ${name,,} in
+        'group_name') name="{ $desc }"
+                      name_length=${#name}
+                      name_left=$[(40-name_length)/2]
+                      name_right=$[40-(name_left+name_length)]
+                      printf -v tmp "%${name_left}s_NAME_%${name_right}s"
+                      tmp=${tmp// /-}  name=${tmp//_NAME_/$name}
+                      content+=( "$desc" );  desc='_LINE_';;
+                '#'*) continue;;
     esac
+    ((${#desc}>desclength)) && desclength=${#desc}
     hostnames["$name"]=$hostname #Create host-hostname pairs in hostnames array
     fullist+=("$name" "$desc")   #Add Host and Description to the list
 done < <(gawk '
@@ -524,9 +529,9 @@ BEGIN{IGNORECASE=1}
     desc=gensub(/(.*)#.*/,          "\\1", "g", desc)
     next
 }
-strt && host == "DUMMY"{
+strt && host == "dummy"{
     hostname=$2
-    print host, "DUMMY", desc
+    print "group_name", "dummy", desc
     strt=0
 }
 strt && /HostName /{
@@ -535,7 +540,9 @@ strt && /HostName /{
     strt=0
 }'  $CONFILES)
 
+descline=$(line - $desclength)
 list=( "${fullist[@]}" )
+
 [[ -e $tmpfile ]] && . "$tmpfile"
 [[    $filter  ]] &&    new_list
 
@@ -544,3 +551,4 @@ check_confile
 [[ $target      ]] || first_dialog
 [[ $OPT =~ name ]] && { echo $target; exit; }
 [[ $target      ]] && second_dialog
+bye #:)

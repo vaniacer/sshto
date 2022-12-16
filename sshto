@@ -455,7 +455,7 @@ first_dialog(){
                     --cancel-label "EXIT" \
 	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]}")
 	case $target:$? in
-       *{\ *\ }*:0) first_dialog ;;
+       *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
                *:2) contents_menu;;

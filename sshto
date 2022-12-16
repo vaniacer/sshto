@@ -551,4 +551,5 @@ check_confile
 [[ $target      ]] || first_dialog
 [[ $OPT =~ name ]] && { echo $target; exit; }
 [[ $target      ]] && second_dialog
+
 bye #:)

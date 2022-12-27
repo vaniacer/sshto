@@ -24,59 +24,60 @@ tabbed(){ target=$target gnome-terminal --title=$target --tab -qe "${1/_target_/
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
 cmdlist_renew(){
     cmdlist=(
-        #Command#  #Description#
-        "Username" "Change ssh username to \Z2$GUEST\Z0"
-        "Add tab"  "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
-        "Ssh tab"  "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
-        ''         ''
-        "ls  -la"  "List Files"
-        "free -h"  "Show free memory"
-        "df  -ih"  "Show free inodes"
-        "df   -h"  "Show free disk space"
-        "Custom"   "Run custom command on \Z4$target\Z0"
-        "Script"   "Run custom script on \Z4$target\Z0"
-        ''         ''
-        'Yes'      "Say 'yes' to SSH"
-        "Info"     "Full system info"
-        "Sshkey"   "Add my ssh key to \Z4$target\Z0"
-        "Alias"    "Add my usefull aliases to \Z4$target\Z0"
-        "Copy"     "Copy selected file or dir to \Z4$target\Z0"
-        ''         ''
-        "Home"     "Change home folder \Z4$home\Z0 on local server"
-        "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-        "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
-        "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
-        "Mount"    "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
-        "Unmount"  "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
-        ''         ''
-        "Local"    "Change local  port \Z1$LOCAL\Z0"
-        "Remote"   "Change remote port \Z1$REMOTE\Z0"
-        "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
-        ''         ''
-        "ShowConf" "Show ssh config for this host"
-        "EditConf" "Edit ssh config for this host"
+        #Command#    #Description#
+        "${slct[@]}" #De/Select command
+        "Username"   "Change ssh username to \Z2$GUEST\Z0"
+        "Add tab"    "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
+        "Ssh tab"    "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
+        ''           ''
+        "ls  -la"    "List Files"
+        "free -h"    "Show free memory"
+        "df  -ih"    "Show free inodes"
+        "df   -h"    "Show free disk space"
+        "Custom"     "Run custom command on \Z4$target\Z0"
+        "Script"     "Run custom script on \Z4$target\Z0"
+        ''           ''
+        'Yes'        "Say 'yes' to SSH"
+        "Info"       "Full system info"
+        "Sshkey"     "Add my ssh key to \Z4$target\Z0"
+        "Alias"      "Add my usefull aliases to \Z4$target\Z0"
+        "Copy"       "Copy selected file or dir to \Z4$target\Z0"
+        ''           ''
+        "Home"       "Change home folder \Z4$home\Z0 on local server"
+        "Dest"       "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+        "Upload"     "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
+        "Download"   "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
+        "Mount"      "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
+        "Unmount"    "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
+        ''           ''
+        "Local"      "Change local  port \Z1$LOCAL\Z0"
+        "Remote"     "Change remote port \Z1$REMOTE\Z0"
+        "Tunnel"     "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
+        ''           ''
+        "ShowConf"   "Show ssh config for this host"
+        "EditConf"   "Edit ssh config for this host"
     )
     cmdlist_group=(
-        #Command#  #Description#
-        "Username" "Change ssh username to \Z2$GUEST\Z0"
-        "Add tabs" "Add terminal tabs with \Z3sshto\Z0 for hosts in \Z4$group\Z0 group"
-        "Ssh tabs" "Add terminal tabs with \Z3ssh\Z0 to hosts from \Z4$group\Z0 group"
-        ''         ''
-        "ls  -la"  "List Files"
-        "free -h"  "Show free memory"
-        "df  -ih"  "Show free inodes"
-        "df   -h"  "Show free disk space"
-        "Custom"   "Run custom command on \Z4$group\Z0"
-        "Script"   "Run custom script on \Z4$group\Z0"
-        ''         ''
-        'Yes'      "Say 'yes' to SSH"
-        "Info"     "Full system info"
-        "Alias"    "Add my usefull aliases to \Z4$group\Z0"
-        "Copy"     "Copy selected file or dir to \Z4$group\Z0"
-        ''         ''
-        "Home"     "Change home folder \Z4$home\Z0 on local server"
-        "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$group\Z0"
-        "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$group:${DEST}\Z0"
+        #Command#    #Description#
+        "Username"   "Change ssh username to \Z2$GUEST\Z0"
+        "Add tabs"   "Add terminal tabs with \Z3sshto\Z0 for hosts in \Z4$group\Z0 group"
+        "Ssh tabs"   "Add terminal tabs with \Z3ssh\Z0 to hosts from \Z4$group\Z0 group"
+        ''           ''
+        "ls  -la"    "List Files"
+        "free -h"    "Show free memory"
+        "df  -ih"    "Show free inodes"
+        "df   -h"    "Show free disk space"
+        "Custom"     "Run custom command on \Z4$group\Z0"
+        "Script"     "Run custom script on \Z4$group\Z0"
+        ''           ''
+        'Yes'        "Say 'yes' to SSH"
+        "Info"       "Full system info"
+        "Alias"      "Add my usefull aliases to \Z4$group\Z0"
+        "Copy"       "Copy selected file or dir to \Z4$group\Z0"
+        ''           ''
+        "Home"       "Change home folder \Z4$home\Z0 on local server"
+        "Dest"       "Change destination folder \Z4$DEST\Z0 on \Z4$group\Z0"
+        "Upload"     "Upload   file or folder from \Z4$home\Z0 to \Z4$group:${DEST}\Z0"
     )
 }
 #--------------------------------------------------------------------+--------------------------------------------------
@@ -225,7 +226,7 @@ system_info(){
 
 #------------------------{ Show\Edit ssh config }-----------------------------------------------------------------------
 show_conf(){ clear; ssh -G $target; pause; }
-edit_conf(){ $EDITOR $(grep -ril "Host[[:space:]]$target" $CONFILES); }
+edit_conf(){ $EDITOR $(grep -rilE "Host[[:space:]]*$target" $CONFILES); }
 
 #------------------------{ SSH to target server }-----------------------------------------------------------------------
 go_to_target(){ clear; ssh $SSH_OPT $target || pause; }
@@ -291,10 +292,31 @@ bye(){
 };  trap bye INT
 
 #============================>-{ Dialog functions }-<===================================================================
+do='--output-fd 1 --colors' # dialog common options
+eb='--extra-button'         # extra
+hb='--help-button'          # buttons
+cl='--cancel-label'         # and
+el='--extra-label'          # short
+hl='--help-label'           # label
+ol='--ok-label'             # names
+
+# Dialog buttons order and exit codes
+#<OK> <Extra> <Cancel> <Help>
+# 0      3       1       2
+
+D(){ # dialog creator
+    local opts=()
+    [[ $1 ]] && opts+=("$ol" "$1")
+    [[ $2 ]] && opts+=("$el" "$2" "$eb")
+    [[ $3 ]] && opts+=("$cl" "$3")
+    [[ $4 ]] && opts+=("$hl" "$4" "$hb")
+    shift 4
+    dialog "${opts[@]}" $do  "$@"
+}
+
 #------------------------{ Change alternative username }----------------------------------------------------------------
 username(){
-    new_user=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 20 \
-                      --colors --inputbox 'Change alternative username' 10 30 $GUEST)
+    new_user=$(D "CHANGE" '' "BACK" '' --max-input 20 --inputbox 'Change alternative username' 10 30 $GUEST)
 	case $new_user:$? in
                  *:0) GUEST=${new_user:-$GUEST}; SSH_OPT="-oUser=$GUEST"; USERNOTE="Username changed to \Z2$GUEST\Z0.";;
                  *:*) return;;
@@ -305,13 +327,11 @@ username(){
 custom(){
     local runner=
     [[ $group ]] && runner='group_run'
-    custom_command=$(dialog --ok-label "RUN" --cancel-label "BACK" --inputbox --output-fd 1 \
-                     "Write down your command here:" 8 120 "$custom_command"); ec=$?
-          command="$custom_command"
-	case $command:$ec in
-	           '':0) custom;;
-                *:0) clear; $runner run_command; pause;;
-                *:*) return;;
+    new_command=$(D "RUN" '' "BACK" '' --inputbox "Write down your command here:" 8 120 "$new_command")
+	case $new_command:$? in
+	               '':0) custom;;
+                    *:0) command=$new_command; clear; $runner run_command; pause;;
+                    *:*) return;;
 	esac
 }
 
@@ -322,8 +342,7 @@ script(){
     }
 
     script_text=$(cat "${sshto_script[2]}")
-    dialog --ok-label "RUN" --extra-button --extra-label "EDIT" --help-button --help-label "BACK" \
-           --msgbox "$script_text" 40 120
+    D "RUN" "EDIT" '' "BACK" --msgbox "$script_text" 40 120
     case $? in
          0) [[ $script_text ]] || script; clear; $runner run_script; pause;;
          3) $EDITOR "${sshto_script[2]}"; script;;
@@ -333,29 +352,25 @@ script(){
 
 #------------------------{ Change local port for tunnelling }-----------------------------------------------------------
 local_port(){
-    new_local=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                       --colors --inputbox 'Change local port' 10 30 $LOCAL)
+    new_local=$(D "CHANGE" '' "BACK" '' --max-input 5 --inputbox 'Change local port' 10 30 $LOCAL)
     LOCAL=${new_local:-$LOCAL}
 }
 
 #------------------------{ Change remote port for tunnelling }----------------------------------------------------------
 remote_port(){
-    new_remote=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 5 \
-                        --colors --inputbox 'Change remote port' 10 30 $REMOTE)
+    new_remote=$(D "CHANGE" '' "BACK" '' --max-input 5 --inputbox 'Change remote port' 10 30 $REMOTE)
     REMOTE=${new_remote:-$REMOTE}
 }
 
 #------------------------{ Upload\Download and mount dialogs }----------------------------------------------------------
 downpath(){
-    new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
-                      --colors --inputbox 'Change download folder' 10 50 $DEST)
+    new_path=$(D "CHANGE" '' "BACK" '' --max-input 100 --inputbox 'Change download folder' 10 50 $DEST)
     DEST=${new_path:-$DEST}
     dfilelist=
 }
 
 homepath(){
-    new_path=$(dialog --ok-label "CHANGE" --cancel-label "BACK" --output-fd 1 --max-input 100 \
-                      --colors --inputbox 'Change home folder' 10 50 $home)
+    new_path=$(D "CHANGE" '' "BACK" '' --max-input 100 --inputbox 'Change home folder' 10 50 $home)
     home=${new_path:-$home}
 }
 
@@ -374,20 +389,19 @@ unmountdest(){ mount | grep -q "$home" && umount "$home"; }
 copy_files(){
     local runner=
     [[ $group ]] && runner='group_run'
-    ufilename=$(dialog --ok-label "COPY" --cancel-label "BACK" --output-fd 1 --colors --fselect $PWD/ 10 80)
+    ufilename=$(D "COPY" '' "BACK" '' --fselect $PWD/ 10 80)
 	case $ufilename:$? in
          $PWD|$PWD/:0) return;;
                   *:0) clear; $runner uploader; pause;;
                   *:*) return;;
-	esac;              copy_files
+	esac           ;   copy_files
 }
 
 upload(){
     local runner=
     [[ $group ]] && runner='group_run'
     ufilelist=( $(ls -sh1 $home | awk '{print $2,$1}') )
-	ufilename=$(dialog --output-fd 1 --ok-label "UPLOAD" --cancel-label "BACK" \
-                       --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
+	ufilename=$(D "UPLOAD" '' "BACK" '' --menu "Select file\folder to upload:" 0 0 0 "${ufilelist[@]:2}")
 	case $? in
          0) [[ $ufilename ]] || upload
             clear; $runner uploader; pause;;
@@ -407,8 +421,7 @@ download(){
                 second_dialog
             }
     }
-	dfilename=$(dialog --output-fd 1 --ok-label "DOWNLOAD" --cancel-label "BACK" \
-                      --menu "Select file\folder to download:" 0 0 0 "${dfilelist[@]:2}")
+	dfilename=$(D "DOWNLOAD" '' "BACK" '' --menu "Select file\folder to download:" 0 0 0 "${dfilelist[@]:2}")
 	case $? in
          0) [[ $dfilename ]] || download
             clear
@@ -422,60 +435,90 @@ download(){
 save_tmp(){ echo "$1" > "$tmpfile"; chmod 600 "$tmpfile"; }
 new_list(){
     list=(); match=
-    for item in "${fullist[@]}"; {
-        case         $item:$match in
+    for item in "${selected_list[@]}" "${fullist[@]}"; {
+        case         $item:$match    in
                  *{\ *\ }*:1) break  ;;
            *{\ $filter\ }*:*) match=1;;
         esac
         [[ $match ]] && list+=( "$item" )
     }
+    [[ $filter =~ Selected ]] && return
     [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
 
 contents_menu(){
-	filter=$(dialog --output-fd 1 --ok-label "SELECT" --extra-button --extra-label "RUN COMMAND" --cancel-label "BACK" \
-                    --no-items --menu "Select list of hosts:" 0 0 0 "All" "${content[@]}")
+    local filter_tmp=$filter selected=
+    [[  ${selected_list[@]} ]] && selected='Selected_hosts'
+
+    local btns=('SELECT' 'RUN COMMAND' 'BACK' '')
+	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected "${content[@]}")
 	case $filter:$? in
-             All:0) list=( "${fullist[@]}" )
+             All:0) list=( "${selected_list[@]}" "${fullist[@]}" )
                     save_tmp       "filter=";;
                *:3) second_dialog "$filter" ;;
+               *:1) filter=$filter_tmp;;
                *:0) new_list;;
-	esac;           first_dialog
+	esac        ;   first_dialog
+}
+
+#------------------------{ Selector }-----------------------------------------------------------------------------------
+declare -A slctd_hosts
+
+gen_selected_list(){
+    local k
+    selected_list=('-----------{ Selected_hosts }-----------' '_LINE_')
+    for k in "${!slctd_hosts[@]}"; { selected_list+=("$k" "${slctd_hosts[$k]}"); }
+}
+
+slct_dslct(){
+    local desc k v
+
+    # remove from selection
+    [[ ${slctd_hosts[$target]} ]] && {
+        unset slctd_hosts[$target]
+        gen_selected_list
+        ((${#selected_list[@]}==2)) && unset selected_list
+        return
+    }
+
+    # add to selection
+    for ((k=0,v=1; k<N; k++,v++)); { [[ ${fullist[k]} =~ $target ]] && { desc=${fullist[v]}; break; }; }
+    slctd_hosts[$target]=$desc
+    gen_selected_list
 }
 
 #------------------------{ First dialog - Select host }-----------------------------------------------------------------
 first_dialog(){
-    group=
-    dfilelist=
-    [[ $OPT =~ name ]] && oklbl='GET NAME' extra= || oklbl='CONNECT' extra='--extra-button'
-	target=$(dialog --output-fd 1 --colors $extra --help-button \
-	                --extra-label  "RUN COMMAND" \
-	                --help-label   "CONTENTS" \
-	                --ok-label     "$oklbl" \
-                    --cancel-label "EXIT" \
-	                --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}")
+    local btns
+    group= dfilelist=
+    [[ $OPT =~ name ]] && btns=('GET NAME' '' 'EXIT' 'CONTENTS') || btns=('CONNECT' 'RUN COMMAND' 'EXIT' 'CONTENTS')
+	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}")
 	case $target:$? in
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
+      	       *:1) bye;;
                *:2) contents_menu;;
       	       *:3) second_dialog;;
-      	       *:*) bye;;
+               *:*) contents_menu;;
   	esac
 }
 
 #------------------------{ Second dialog - Select command }-------------------------------------------------------------
 second_dialog(){
-    local headings  commands                    connect                  singleornot         runner
-        group="$1"  commands='cmdlist[@]'       connect='--extra-button' singleornot='host'  runner=
-    [[ $group ]] && commands='cmdlist_group[@]' connect= filter="$group" singleornot='group' runner='group_run'
-    headings="Select command to run on $singleornot \Z4${group:-$target}\Z0. $USERNOTE"
-    new_list
-    cmdlist_renew
-	command=$(dialog --ok-label "RUN" --cancel-label "BACK" --output-fd 1 $connect --extra-label "CONNECT" --colors \
-                     --menu "$headings" 0 0 0 "${!commands}")
+    local headings    commands                    singleornot         runner             connect
+          group="$1"  commands='cmdlist[@]'       singleornot='host'  runner=''          connect='CONNECT'
+      [[ $group ]] && commands='cmdlist_group[@]' singleornot='group' runner='group_run' connect=''  filter="$group"
+          headings="Select command to run on $singleornot \Z4${group:-$target}\Z0. $USERNOTE"
+
+                                       slct=(Select   "Add \Z4$target\Z0 to tmp group \Z4Selected_hosts\Z0" '' '')
+    [[ ${slctd_hosts["$target"]} ]] && slct=(Deselect "Remove \Z4$target\Z0 from tmp group \Z4Selected_hosts\Z0" '' '')
+
+    new_list; cmdlist_renew
+	command=$(D 'RUN' "$connect" 'BACK' '' --menu "$headings" 0 0 0 "${!commands}")
 	case $command:$? in
 	           '':0) :;;
+	     *'elect':0) slct_dslct  ;;
        "Add tab"*:0) $runner tabbed "$0";;
        "Ssh tab"*:0) $runner tabbed "ssh $SSH_OPT _target_";;
             Alias:0) clear; $runner add_aliases; pause;;
@@ -497,10 +540,10 @@ second_dialog(){
            Tunnel:0) portunneling;;
          ShowConf:0) show_conf   ;;
          EditConf:0) edit_conf   ;;
-                *:3) go_to_target;;
                 *:0) clear; $runner run_command; pause;;
+                *:3) go_to_target;;
                 *:*) first_dialog;;
-	esac;            second_dialog "$group"
+	esac         ;   second_dialog "$group"
 }
 
 #-------------{ Create the list of hosts. Get hosts and descriptions from ~/.ssh/config* }------------------------------
@@ -542,6 +585,7 @@ strt && /HostName /{
 
 descline=$(line - $desclength)
 list=( "${fullist[@]}" )
+N=${#fullist[@]}
 
 [[ -e $tmpfile ]] && . "$tmpfile"
 [[    $filter  ]] &&    new_list

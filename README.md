@@ -4,42 +4,43 @@ Small bash script that builds a menu (via dialog) from your ~/.ssh/config.</br>
 ![screeenshot](https://user-images.githubusercontent.com/18072680/60570513-69e99f00-9d7a-11e9-916d-48b74fa7585a.png)
 </br>
 Allows you to connect to your servers or run commands from menu. Available commands:</br>
-![new_commands](https://user-images.githubusercontent.com/18072680/207667642-dca06163-0874-4f2e-9cc6-9a8fb14930e0.png)
+![new_commands](https://user-images.githubusercontent.com/18072680/209629110-c5fbfd87-899b-4cb3-9273-2accdfe86381.png)
 </br>
 Your commands can be easily added to this list. Just edit this part of the script:
 <pre>
 cmdlist=(
-    #Command#  #Description#
-    "Username" "Change ssh username to \Z2$GUEST\Z0"
-    "Add tab"  "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
-    "Ssh tab"  "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
-    ''         ''
-    "ls  -la"  "List Files"
-    "free -h"  "Show free memory"
-    "df  -ih"  "Show free inodes"
-    "df   -h"  "Show free disk space"
-    "Custom"   "Run custom command on \Z4$target\Z0"
-    "Script"   "Run custom script on \Z4$target\Z0"
-    ''         ''
-    'Yes'      "Say 'yes' to SSH"
-    "Info"     "Full system info"
-    "Sshkey"   "Add my ssh key to \Z4$target\Z0"
-    "Alias"    "Add my usefull aliases to \Z4$target\Z0"
-    "Copy"     "Copy selected file or dir to \Z4$target\Z0"
-    ''         ''
-    "Home"     "Change home folder \Z4$home\Z0 on local server"
-    "Dest"     "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-    "Upload"   "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
-    "Download" "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
-    "Mount"    "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
-    "Unmount"  "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
-    ''         ''
-    "Local"    "Change local  port \Z1$LOCAL\Z0"
-    "Remote"   "Change remote port \Z1$REMOTE\Z0"
-    "Tunnel"   "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
-    ''         ''
-    "ShowConf" "Show ssh config for this host"
-    "EditConf" "Edit ssh config for this host"
+    #Command#    #Description#
+    "${slct[@]}" #De/Select command
+    "Username"   "Change ssh username to \Z2$GUEST\Z0"
+    "Add tab"    "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
+    "Ssh tab"    "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
+    ''           ''
+    "ls  -la"    "List Files"
+    "free -h"    "Show free memory"
+    "df  -ih"    "Show free inodes"
+    "df   -h"    "Show free disk space"
+    "Custom"     "Run custom command on \Z4$target\Z0"
+    "Script"     "Run custom script on \Z4$target\Z0"
+    ''           ''
+    'Yes'        "Say 'yes' to SSH"
+    "Info"       "Full system info"
+    "Sshkey"     "Add my ssh key to \Z4$target\Z0"
+    "Alias"      "Add my usefull aliases to \Z4$target\Z0"
+    "Copy"       "Copy selected file or dir to \Z4$target\Z0"
+    ''           ''
+    "Home"       "Change home folder \Z4$home\Z0 on local server"
+    "Dest"       "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
+    "Upload"     "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
+    "Download"   "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
+    "Mount"      "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
+    "Unmount"    "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
+    ''           ''
+    "Local"      "Change local  port \Z1$LOCAL\Z0"
+    "Remote"     "Change remote port \Z1$REMOTE\Z0"
+    "Tunnel"     "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
+    ''           ''
+    "ShowConf"   "Show ssh config for this host"
+    "EditConf"   "Edit ssh config for this host"
 )
 </pre>
 First collumn - command, second - description.</br>

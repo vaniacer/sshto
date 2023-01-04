@@ -9,6 +9,7 @@ sshfsopt=       # Sshfs options if needed
     TIME=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
   EDITOR=nano   # SSH confile editor.
   LSEXIT=true   # Perform ls on exit true|false.
+group_id=dummy  # Group separator identification template, 'dummy' by default, don't ask why, historically)
      OPT=$1     # Options.
      KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
 CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]})   # SSH confiles list.
@@ -572,8 +573,7 @@ BEGIN{IGNORECASE=1}
     desc=gensub(/(.*)#.*/,          "\\1", "g", desc)
     next
 }
-strt && host == "dummy"{
-    hostname=$2
+strt && host == "'"$group_id"'"{
     print "group_name", "dummy", desc
     strt=0
 }

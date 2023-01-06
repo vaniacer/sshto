@@ -1,22 +1,21 @@
 #!/bin/bash
 #--------------------------{ Default values }---------------------------------------------------------------------------
+     OPT=$1     # Options.
+     KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
+CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]})   # SSH confiles list.
   REMOTE=8080   # Remote port for tunneling.
    LOCAL=18080  # Local  port for tunneling.
    GUEST=$USER  # Alternative username to login with.
     DEST='~'    # Destination folder on target server to download\upload files and sshfs mount.
-    home=$PWD   # Destination folder on local  server to download\upload files and sshfs mount.
-sshfsopt=       # Sshfs options if needed
     TIME=60     # Timer for tunneling command. Tunnel will be closed after 60 seconds, but it will stay open if used.
   EDITOR=nano   # SSH confile editor.
   LSEXIT=true   # Perform ls on exit true|false.
+    home=$PWD   # Destination folder on local  server to download\upload files and sshfs mount.
+sshfsopt=       # Sshfs options if needed
 group_id=dummy  # Group separator identification template, 'dummy' by default, don't ask why, historically)
-     OPT=$1     # Options.
-     KEY=~/.ssh/id_rsa.pub # SSH key to use in command Sshkey(Add my ssh key to host).
-CONFILES=$(shopt -s nullglob; echo ~/.ssh/{config,config*[!~]})   # SSH confiles list.
 knwhosts=~/.ssh/known_hosts    # Path to known_hosts file.
  confile=~/.sshtorc            # Path to config file, have to be chmod'ed to 600.
  tmpfile=/tmp/sshtorc-${USER}  # Path to tmp file to save selected context.
-
 sshto_script[0]=~              # Path to sshto script
 sshto_script[1]=.sshto_script  # Sshto script filename
 sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full
@@ -27,9 +26,9 @@ cmdlist_renew(){
     cmdlist=(
         #Command#    #Description#
         "${slct[@]}" #De/Select command
-        "Username"   "Change ssh username to \Z2$GUEST\Z0"
-        "Add tab"    "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
-        "Ssh tab"    "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
+        "Username"   "Change ssh username to \Z1$GUEST\Z0"
+        "Add tab"    "Add terminal tab with \Z1sshto\Z0 for \Z4$target\Z0"
+        "Ssh tab"    "Add terminal tab with \Z1ssh\Z0 to \Z4$target\Z0"
         ''           ''
         "ls  -la"    "List Files"
         "free -h"    "Show free memory"
@@ -41,28 +40,28 @@ cmdlist_renew(){
         'Yes'        "Say 'yes' to SSH"
         "Info"       "Full system info"
         "Sshkey"     "Add my ssh key to \Z4$target\Z0"
-        "Alias"      "Add my usefull aliases to \Z4$target\Z0"
+        "Alias"      "Add my useful aliases to \Z4$target\Z0"
         "Copy"       "Copy selected file or dir to \Z4$target\Z0"
         ''           ''
         "Home"       "Change home folder \Z4$home\Z0 on local server"
         "Dest"       "Change destination folder \Z4$DEST\Z0 on \Z4$target\Z0"
-        "Upload"     "Upload   file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
+        "Upload"     "Upload file or folder from \Z4$home\Z0 to \Z4$target:${DEST}\Z0"
         "Download"   "Download file or folder from \Z4$target:${DEST}\Z0 to \Z4$home\Z0"
         "Mount"      "Mount remote folder \Z4$target:$DEST\Z0 to \Z4$home\Z0"
         "Unmount"    "Unmount remote folder \Z4$target:$DEST\Z0 from \Z4$home\Z0"
         ''           ''
         "Local"      "Change local  port \Z1$LOCAL\Z0"
         "Remote"     "Change remote port \Z1$REMOTE\Z0"
-        "Tunnel"     "Start portunneling from \Z4$target\Z0 port \Z1$REMOTE\Z0 to local port \Z1$LOCAL\Z0"
+        "Tunnel"     "Start portunneling from \Z4$target:$REMOTE\Z0 to \Z4localhost:$LOCAL\Z0"
         ''           ''
         "ShowConf"   "Show ssh config for this host"
         "EditConf"   "Edit ssh config for this host"
     )
     cmdlist_group=(
         #Command#    #Description#
-        "Username"   "Change ssh username to \Z2$GUEST\Z0"
-        "Add tabs"   "Add terminal tabs with \Z3sshto\Z0 for hosts in \Z4$group\Z0 group"
-        "Ssh tabs"   "Add terminal tabs with \Z3ssh\Z0 to hosts from \Z4$group\Z0 group"
+        "Username"   "Change ssh username to \Z1$GUEST\Z0"
+        "Add tabs"   "Add terminal tabs with \Z1sshto\Z0 for hosts in \Z4$group\Z0 group"
+        "Ssh tabs"   "Add terminal tabs with \Z1ssh\Z0 to hosts from \Z4$group\Z0 group"
         ''           ''
         "ls  -la"    "List Files"
         "free -h"    "Show free memory"
@@ -73,12 +72,14 @@ cmdlist_renew(){
         ''           ''
         'Yes'        "Say 'yes' to SSH"
         "Info"       "Full system info"
-        "Alias"      "Add my usefull aliases to \Z4$group\Z0"
+        "Alias"      "Add my useful aliases to \Z4$group\Z0"
         "Copy"       "Copy selected file or dir to \Z4$group\Z0"
         ''           ''
         "Home"       "Change home folder \Z4$home\Z0 on local server"
         "Dest"       "Change destination folder \Z4$DEST\Z0 on \Z4$group\Z0"
-        "Upload"     "Upload   file or folder from \Z4$home\Z0 to \Z4$group:${DEST}\Z0"
+        "Upload"     "Upload file or folder from \Z4$home\Z0 to \Z4$group:${DEST}\Z0"
+        ''           ''
+        "EditConf"   "Edit ssh config for this group"
     )
 }
 #--------------------------------------------------------------------+--------------------------------------------------
@@ -227,7 +228,12 @@ system_info(){
 
 #------------------------{ Show\Edit ssh config }-----------------------------------------------------------------------
 show_conf(){ clear; ssh -G $target; pause; }
-edit_conf(){ $EDITOR $(grep -rilE "Host[[:space:]]*$target" $CONFILES); }
+edit_conf(){
+    local   confs   search=$target
+    [[ $group ]] && search="$group_id[[:space:]]*#$group#"
+    confs=($(grep -rilE "Host[[:space:]]*$search" $CONFILES)) || { clear; echo 'Config file not found'; pause; return; }
+    $EDITOR "${confs[@]}"
+}
 
 #------------------------{ SSH to target server }-----------------------------------------------------------------------
 go_to_target(){ clear; ssh $SSH_OPT $target || pause; }
@@ -258,8 +264,7 @@ group_run(){
               target="${group_list[$i]}"
           [[ $target =~ ^-+.*-+$ ]] && continue
           (  code="$BLD$GRN"
-             data=$( $func 2>&1 ) || code="$BLD$RED"
-             data=$( sed ':a;N;$!ba;s/\n/\\n/g' <<< "$data" )
+             data=$( $func 2>&1 | sed ':a;N;$!ba;s/\n/\\n/g'; exit ${PIPESTATUS[0]}) || code="$BLD$RED"
              echo "$code----{ $target }----$DEF\\n${data:-Command did not output anything.}\\n"
           )  &
         done
@@ -488,7 +493,7 @@ slct_dslct(){
     gen_selected_list
 }
 
-#------------------------{ First dialog - Select host }-----------------------------------------------------------------
+#------------------------{ First dialog - Select target host }----------------------------------------------------------
 first_dialog(){
     local btns
     group= dfilelist=

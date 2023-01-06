@@ -15,7 +15,7 @@ cmdlist=(
     "Add tab"    "Add terminal tab with \Z3sshto\Z0 for \Z4$target\Z0"
     "Ssh tab"    "Add terminal tab with \Z3ssh\Z0 to \Z4$target\Z0"
     ''           ''
-    "ls  -la"    "List Files"
+    "ls -lah"    "List Files"
     "free -h"    "Show free memory"
     "df  -ih"    "Show free inodes"
     "df   -h"    "Show free disk space"
@@ -44,25 +44,26 @@ cmdlist=(
 )
 </pre>
 First collumn - command, second - description.</br>
-Simple commands like 'ls -la' can be added as is.</br>
-A list of commands or a complicated logic better add via function.</br>
-Empty string is used as a delimiter.</br>
+Simple commands like `ls -la` could be added as is.</br>
+A list of commands or a complicated logic should be added via function.</br>
+Empty values(`''`) could be used as a delimiter.</br>
 You can quick jump to the selected server via <i>CONNECT</i> button.</br>
-When you done press ^D it'll bring you back to <i>sshto</i> commands section.</br>
+To close <i>ssh</i> session press <kbd>CTRL</kbd>+<kbd>D</kbd> or run `exit` command, it'll bring you back to <i>sshto</i> commands section.</br>
 </br>
-
-Optional description could to be added like this:</br>
+Optional hosts description could be added like this:</br>
 <pre>
-Host server1 #Description could be more than one word
+Host server1 #Description, it could be more than one word
 HostName 192.168.0.1
 Port 22
 User admin
 </pre>
-Optional start menu delimiters '---{ Group Description }---' could be added like this:</br>
+Optional start menu delimiters '---{ Group Name }---' could be added like this:</br>
 <pre>
-#Host DUMMY #Group Description#
+#Host DUMMY #Group Name#
 </pre>
-It won't break your *ssh configs* coz it's considered as comments.  
+If you are unhappy with this 'DUMMY' group name template, or you actually have a host named 'dummy',
+you can change this template by ajusting this variable `group_id=dummy`. </br>
+All these additions won't break your *ssh configs* coz they are considered as comments.  
 
 ------
 ~/.ssh/config example:
@@ -89,14 +90,14 @@ HostName localhost
 Host moserver3 #Third server
 HostName localhost
 </pre>
-Script greps data from multiple config files via pattername <i>'config*'</i> in <i>~/.ssh</i> dir.<br>
+Script greps data from multiple config files via pattername `config*` in `~/.ssh` dir.</br>
 So you can split config to multiple files and use them with <i>Include</i> directive, example:
 <pre>
 Include config_moscow
 Include config_rybinsk
 Include config*
 </pre>
-All preset variables and functions could be tweaked via *~/.sshtorc* config file:
+All preset variables and functions could be tweaked via `~/.sshtorc` config file:
 <pre>
 echo "REMOTE=9000  # Remote port for tunneling." >> ~/.sshtorc
 </pre>

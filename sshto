@@ -30,7 +30,7 @@ cmdlist_renew(){
         "Add tab"    "Add terminal tab with \Z1sshto\Z0 for \Z4$target\Z0"
         "Ssh tab"    "Add terminal tab with \Z1ssh\Z0 to \Z4$target\Z0"
         ''           ''
-        "ls  -la"    "List Files"
+        "ls -lah"    "List Files"
         "free -h"    "Show free memory"
         "df  -ih"    "Show free inodes"
         "df   -h"    "Show free disk space"

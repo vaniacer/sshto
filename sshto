@@ -39,6 +39,7 @@ cmdlist_renew(){
         ''           ''
         'Yes'        "Say 'yes' to SSH"
         "Info"       "Full system info"
+        'Fix_id'     "Update host in known_hosts"
         "Sshkey"     "Add my ssh key to \Z4$target\Z0"
         "Alias"      "Add my useful aliases to \Z4$target\Z0"
         "Copy"       "Copy selected file or dir to \Z4$target\Z0"
@@ -185,11 +186,18 @@ pause(){
 
 #------------------------{ Yes to ssh }---------------------------------------------------------------------------------
 ssh_yes(){
-    hostname=${hostnames["$target"]}
-    fprint=($(ssh-keyscan -H "$hostname" 2>/dev/null))
+    local hostname=${hostnames["$target"]}
+    local fprint=($(ssh-keyscan -H "$hostname" 2>/dev/null))
     grep -q "${fprint[2]}" "$knwhosts" || echo "${fprint[@]}" >> "$knwhosts"
 }
 
+fix_id(){
+    local hostname=${hostnames["$target"]}
+    local address=$(dig +short $hostname)
+    ssh-keygen -f "$knwhosts" -R "$hostname"
+    ssh-keygen -f "$knwhosts" -R "$address"
+    ssh_yes
+}
 #------------------------{ System Info commands }-----------------------------------------------------------------------
 system_info(){
     ssh $SSH_OPT $target "
@@ -530,6 +538,7 @@ second_dialog(){
             Alias:0) clear; $runner add_aliases; pause;;
              Info:0) clear; $runner system_info; pause;;
               Yes:0) clear; $runner ssh_yes    ; pause;;
+           Fix_id:0) fix_id      ;;
            Sshkey:0) add_sshkey  ;;
              Copy:0) copy_files  ;;
            Upload:0) upload      ;;

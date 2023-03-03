@@ -60,6 +60,7 @@ cmdlist_renew(){
     )
     cmdlist_group=(
         #Command#    #Description#
+        "${slct_grp[@]}" #De/Select command
         "Username"   "Change ssh username to \Z1$GUEST\Z0"
         "Add tabs"   "Add terminal tabs with \Z1sshto\Z0 for hosts in \Z4$group\Z0 group"
         "Ssh tabs"   "Add terminal tabs with \Z1ssh\Z0 to hosts from \Z4$group\Z0 group"
@@ -483,6 +484,7 @@ contents_menu(){
 
 #------------------------{ Selector }-----------------------------------------------------------------------------------
 declare -A slctd_hosts
+declare -A slctd_groups
 
 gen_selected_list(){
     local k
@@ -494,17 +496,28 @@ slct_dslct(){
     local desc k v
 
     # remove from selection
-    [[ ${slctd_hosts[$target]} ]] && {
+    [[ ${slctd_hosts[$target]} && $1 != "select" ]] && {
         unset slctd_hosts[$target]
         gen_selected_list
         ((${#selected_list[@]}==2)) && unset selected_list
         return
     }
 
+    [[ $1 == "deselect" ]] && return
     # add to selection
     for ((k=0,v=1; k<N; k++,v++)); { [[ ${fullist[k]} =~ $target ]] && { desc=${fullist[v]}; break; }; }
     slctd_hosts[$target]=$desc
     gen_selected_list
+}
+
+slct_dslctgroup_run(){
+    group_list=("${list[@]:2}")
+    for ((i=0;  i<${#group_list[@]}; i+=2)); do
+        target="${group_list[$i]}"
+        slct_dslct "${command,,}"
+    done
+
+    [[ ${slctd_groups["$group"]} ]] && unset slctd_groups["$group"] || slctd_groups["$group"]=$group
 }
 
 #------------------------{ First dialog - Select target host }----------------------------------------------------------
@@ -524,21 +537,28 @@ first_dialog(){
   	esac
 }
 
+gsel(){
+    [[ $group == "Selected_hosts" ]] && { slct_grp=(); return 1; }
+    [[ ${slctd_groups["$group"]}  ]] &&                return 0
+}
 #------------------------{ Second dialog - Select command }-------------------------------------------------------------
 second_dialog(){
     local headings    commands                    singleornot         runner             connect
-          group="$1"  commands='cmdlist[@]'       singleornot='host'  runner=''          connect='CONNECT'
-      [[ $group ]] && commands='cmdlist_group[@]' singleornot='group' runner='group_run' connect=''  filter="$group"
-          headings="Select command to run on $singleornot \Z4${group:-$target}\Z0. $USERNOTE"
+        group="$1"    commands='cmdlist[@]'       singleornot='host'  runner=''          connect='CONNECT'
+    [[ $group ]] && { commands='cmdlist_group[@]' singleornot='group' runner='group_run' connect=''  filter="$group"
+                      slct_grp=(Select   "Add all hosts of \Z4$group\Z0 to tmp group \Z4Selected_hosts\Z0"      '' '')
+              gsel && slct_grp=(Deselect "Remove all hosts of \Z4$group\Z0 from tmp group \Z4Selected_hosts\Z0" '' '')
+    }
 
-                                       slct=(Select   "Add \Z4$target\Z0 to tmp group \Z4Selected_hosts\Z0" '' '')
+    headings="Select command to run on $singleornot \Z4${group:-$target}\Z0. $USERNOTE"
+                                       slct=(Select   "Add \Z4$target\Z0 to tmp group \Z4Selected_hosts\Z0"      '' '')
     [[ ${slctd_hosts["$target"]} ]] && slct=(Deselect "Remove \Z4$target\Z0 from tmp group \Z4Selected_hosts\Z0" '' '')
 
     new_list; cmdlist_renew
-	command=$(D 'RUN' "$connect" 'BACK' '' --menu "$headings" 0 0 0 "${!commands}")
+	command=$(D 'RUN' "$connect" 'BACK' 'CONTENTS' --menu "$headings" 0 0 0 "${!commands}")
 	case $command:$? in
 	           '':0) :;;
-	     *'elect':0) slct_dslct  ;;
+	     *'elect':0) slct_dslct$runner  ;;
        "Add tab"*:0) $runner tabbed "$0";;
        "Ssh tab"*:0) $runner tabbed "ssh $SSH_OPT _target_";;
             Alias:0) clear; $runner add_aliases; pause;;
@@ -562,8 +582,9 @@ second_dialog(){
          ShowConf:0) show_conf   ;;
          EditConf:0) edit_conf   ;;
                 *:0) clear; $runner run_command; pause;;
-                *:3) go_to_target;;
-                *:*) first_dialog;;
+                *:2) contents_menu;;
+                *:3) go_to_target ;;
+                *:*) first_dialog ;;
 	esac         ;   second_dialog "$group"
 }
 

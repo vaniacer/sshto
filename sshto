@@ -22,6 +22,17 @@ sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full
 #------------------------{ Add some tabs }------------------------------------------------------------------------------
 tabbed(){ target=$target gnome-terminal --title=$target --tab -qe "${1/_target_/$target}"; } # Terminal command for tabs
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
+  qcmd='-----------{ Quick commands }-----------'
+ qbut1=1
+quick_butt=(
+    '' ''  "$qcmd"  '_LINE_'
+    "$qbut1"  "Filter items"
+)
+
+#
+#                   	case $object:$? in
+#	          '':0|"----{ Quick selection }----":0)     select_object    ;;
+
 cmdlist_renew(){
     cmdlist=(
         #Command#    #Description#
@@ -486,7 +497,7 @@ download(){
 save_tmp(){ echo "$1" > "$tmpfile"; chmod 600 "$tmpfile"; }
 new_list(){
     list=(); match=
-    for item in "${selected_list[@]}" "${fullist[@]}"; {
+    for item in "${selected_list[@]}" "${filtered_list[@]}" "${fullist[@]}"; {
         case         $item:$match    in
                  *{\ *\ }*:1) break  ;;
            *{\ $filter\ }*:*) match=1;;
@@ -498,13 +509,13 @@ new_list(){
 }
 
 contents_menu(){
-    local filter_tmp=$filter selected=
+    local filter_tmp=$filter selected= filtered=
     [[ ${selected_list[@]} ]] && selected='Selected_hosts'
-
+    [[ ${filtered_list[@]} ]] && selected='Filtered_hosts'
     local btns=('SELECT' 'RUN COMMAND' 'RELOAD' 'BACK')
-	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected "${content[@]}")
+	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected $filtered "${content[@]}")
 	case $filter:$? in
-             All:0) list=( "${selected_list[@]}" "${fullist[@]}" )
+             All:0) list=( "${selected_list[@]}" "${fullist[@]}" "${quick_butt[@]}" )
                     save_tmp       "filter=";;
                *:3) second_dialog "$filter" ;;
                *:2) filter=$filter_tmp;;
@@ -553,6 +564,22 @@ slct_dslctgroup_run(){
     [[ ${slctd_groups["$group"]} ]] && unset slctd_groups["$group"] || slctd_groups["$group"]=$group
 }
 
+#------------------------{ Items filter }-------------------------------------------------------------------------------
+filter_items(){
+    local n d re='-{ .+ }-' c=${#fullist[@]}
+    filtered_list=('-----------{ Filtered_hosts }-----------' '_LINE_')
+    items_filter=$(D 'FILTER' 'CLEAR' 'BACK' '' --max-input 60 --inputbox 'Enter filtering pattern' 10 60 $items_filter)
+	case $items_filter:$? in
+                     *:0) for ((n=0,d=1; n<c; n+=2,d+=2)); do
+                              [[ ${fullist[n]} =~ ^-+.*-+$      ]] && continue
+                              [[ ${fullist[n]} =~ $items_filter ]] && filtered_list+=("${fullist[n]}" "${fullist[d]}")
+                          done
+                          ((${#filtered_list[@]}==2)) && { clear; pause 'Nothing found'; $1; }
+                          list=( "${filtered_list[@]}" "${quick_butt[@]}" );;
+                     *:3) items_filter=;;
+	esac;                 $1
+}
+
 #------------------------{ First dialog - Select target host }----------------------------------------------------------
 first_dialog(){
     local btns
@@ -560,6 +587,8 @@ first_dialog(){
     [[ $OPT =~ name ]] && btns=('GET NAME' '' 'EXIT' 'CONTENTS') || btns=('CONNECT' 'RUN COMMAND' 'EXIT' 'CONTENTS')
 	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}")
 	case $target:$? in
+	     "$qcmd":0) first_dialog;;
+	    "$qbut1":0) filter_items first_dialog;;
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
@@ -663,7 +692,7 @@ restart(){
     }'  $CONFILES)
 
     descline=$(line - $desclength)
-    list=( "${fullist[@]}" )
+    list=( "${fullist[@]}" "${quick_butt[@]}" )
     N=${#fullist[@]}
 }
 

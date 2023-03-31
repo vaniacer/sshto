@@ -582,7 +582,7 @@ first_dialog(){
 	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}" "${quick_butt[@]}")
 	case $target:$? in
 	     "$qcmd":0) first_dialog;;
-	    "$qbut1":0) filter_items 'first_dialog';;
+	    "$qbut1":[03]) filter_items 'first_dialog';;
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;

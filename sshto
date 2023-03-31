@@ -21,18 +21,8 @@ sshto_script[1]=.sshto_script  # Sshto script filename
 sshto_script[2]="${sshto_script[0]}/${sshto_script[1]}" # Sshto script full
 #------------------------{ Add some tabs }------------------------------------------------------------------------------
 tabbed(){ target=$target gnome-terminal --title=$target --tab -qe "${1/_target_/$target}"; } # Terminal command for tabs
+
 #------------------------{ Add your commands to this lists }------------------------------------------------------------
-  qcmd='-----------{ Quick commands }-----------'
- qbut1=1
-quick_butt=(
-    '' ''  "$qcmd"  '_LINE_'
-    "$qbut1"  "Filter items"
-)
-
-#
-#                   	case $object:$? in
-#	          '':0|"----{ Quick selection }----":0)     select_object    ;;
-
 cmdlist_renew(){
     cmdlist=(
         #Command#    #Description#
@@ -504,6 +494,7 @@ new_list(){
         esac
         [[ $match ]] && list+=( "$item" )
     }
+
     [[ $filter =~ Selected ]] && return
     [[ ${list[*]} ]] && save_tmp "filter='$filter'" || { list=( "${fullist[@]}" ); rm "$tmpfile"; }
 }
@@ -515,7 +506,7 @@ contents_menu(){
     local btns=('SELECT' 'RUN COMMAND' 'RELOAD' 'BACK')
 	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected $filtered "${content[@]}")
 	case $filter:$? in
-             All:0) list=( "${selected_list[@]}" "${fullist[@]}" "${quick_butt[@]}" )
+             All:0) list=( "${selected_list[@]}" "${fullist[@]}" )
                     save_tmp       "filter=";;
                *:3) second_dialog "$filter" ;;
                *:2) filter=$filter_tmp;;
@@ -566,17 +557,20 @@ slct_dslctgroup_run(){
 
 #------------------------{ Items filter }-------------------------------------------------------------------------------
 filter_items(){
-    local n d re='-{ .+ }-' c=${#fullist[@]}
-    filtered_list=('-----------{ Filtered_hosts }-----------' '_LINE_')
+    local n d
+    filtered_list=('-----------{ Filtered_hosts }-----------' "$descline")
     items_filter=$(D 'FILTER' 'CLEAR' 'BACK' '' --max-input 60 --inputbox 'Enter filtering pattern' 10 60 $items_filter)
 	case $items_filter:$? in
-                     *:0) for ((n=0,d=1; n<c; n+=2,d+=2)); do
+	                '':0) :;;
+                     *:0) for ((n=0,d=1; n<N; n+=2,d+=2)); do
                               [[ ${fullist[n]} =~ ^-+.*-+$      ]] && continue
                               [[ ${fullist[n]} =~ $items_filter ]] && filtered_list+=("${fullist[n]}" "${fullist[d]}")
                           done
                           ((${#filtered_list[@]}==2)) && { clear; pause 'Nothing found'; $1; }
-                          list=( "${filtered_list[@]}" "${quick_butt[@]}" );;
-                     *:3) items_filter=;;
+                          list=( "${filtered_list[@]}" );;
+                     *:3) unset filtered_list items_filter
+                          contents_menu;;
+                     *:1) $1;;
 	esac;                 $1
 }
 
@@ -585,10 +579,10 @@ first_dialog(){
     local btns
     group= dfilelist=
     [[ $OPT =~ name ]] && btns=('GET NAME' '' 'EXIT' 'CONTENTS') || btns=('CONNECT' 'RUN COMMAND' 'EXIT' 'CONTENTS')
-	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}")
+	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}" "${quick_butt[@]}")
 	case $target:$? in
 	     "$qcmd":0) first_dialog;;
-	    "$qbut1":0) filter_items first_dialog;;
+	    "$qbut1":0) filter_items 'first_dialog';;
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;
        *{\ *\ }*:3) filter=${target//*\{ }; filter=${filter// \}*}; second_dialog "$filter";;
                *:0) [[ $OPT =~ name ]] && return || { go_to_target; first_dialog; };;
@@ -694,7 +688,16 @@ restart(){
     descline=$(line - $desclength)
     list=( "${fullist[@]}" "${quick_butt[@]}" )
     N=${#fullist[@]}
+     qcmd='-----------{ Quick commands }-----------'
+    qbut1='1             Filter items'
+    quick_butt=(
+        '' ''  "$qcmd"  "$descline"
+        "$qbut1"  "Create list of hosts filtered by pattern"
+    )
+
 }
+
+
 
 #--{ Go baby, GO!) }--
 check_confile;  restart

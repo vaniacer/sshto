@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #--------------------------{ Default values }---------------------------------------------------------------------------
      OPT=$1     # Options.
   sshdir=~/.ssh # Ssh configfiles folder

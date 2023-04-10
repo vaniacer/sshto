@@ -247,7 +247,7 @@ show_conf(){ clear; ssh -G $target; pause; }
 edit_conf(){
     local new_group search=$target new_filename group_list name confs data
     [[ $group ]] && search="$group_id[[:space:]]*#$group#"
-    [[ $group == 'Selected_hosts' ]] && {
+    [[ $group =~ Selected_hosts|Filtered_hosts ]] && {
         dialog --yesno 'Save this group as permanent config file?' 5 45 || return
         new_group=$(D "RUN" '' "BACK" '' --inputbox "Set new group(file) name:" 8 80 "$new_group")
         case $new_group:$? in
@@ -298,7 +298,7 @@ group_run(){
     SSH_OPT_CUR="$SSH_OPT"
     SSH_OPT="$SSH_OPT -o ConnectTimeout=10 -o BatchMode=true"
     case $func in tabbed*)
-        for ((i=0;  i<${#group_list[@]}; i+=2)); do
+        for ((i=0; i<${#group_list[@]}; i+=2)); do
               target="${group_list[$i]}"
               tabbed "${2/_target_/$target}"
         done
@@ -306,7 +306,7 @@ group_run(){
     esac
     WAIT
     data=$(
-        for ((i=0;  i<${#group_list[@]}; i+=2)); do
+        for ((i=0; i<${#group_list[@]}; i+=2)); do
               target="${group_list[$i]}"
           [[ $target =~ ^-+.*-+$ ]] && continue
           (  code="$BLD$GRN"
@@ -502,10 +502,13 @@ new_list(){
 contents_menu(){
     local filter_tmp=$filter selected= filtered=
     [[ ${selected_list[@]} ]] && selected='Selected_hosts'
-    [[ ${filtered_list[@]} ]] && selected='Filtered_hosts'
+    [[ ${filtered_list[@]} ]] && filtered='Filtered_hosts'
     local btns=('SELECT' 'RUN COMMAND' 'RELOAD' 'BACK')
-	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected $filtered "${content[@]}")
+	filter=$(D "${btns[@]}" --no-items --menu "Select list of hosts:" 0 0 0 "All" $selected $filtered "${content[@]}" '' "$qcmd" "$qbut1")
 	case $filter:$? in
+	          "":[03]) contents_menu;;
+	     "$qcmd":[03]) contents_menu;;
+        "$qbut1":[03]) filter_items 'first_dialog';;
              All:0) list=( "${selected_list[@]}" "${fullist[@]}" )
                     save_tmp       "filter=";;
                *:3) second_dialog "$filter" ;;
@@ -558,13 +561,19 @@ slct_dslctgroup_run(){
 #------------------------{ Items filter }-------------------------------------------------------------------------------
 filter_items(){
     local n d
+    declare -A filtered_hosts
     filtered_list=('-----------{ Filtered_hosts }-----------' "$descline")
     items_filter=$(D 'FILTER' 'CLEAR' 'BACK' '' --max-input 60 --inputbox 'Enter filtering pattern' 10 60 $items_filter)
 	case $items_filter:$? in
 	                '':0) :;;
                      *:0) for ((n=0,d=1; n<N; n+=2,d+=2)); do
                               [[ ${fullist[n]} =~ ^-+.*-+$      ]] && continue
-                              [[ ${fullist[n]} =~ $items_filter ]] && filtered_list+=("${fullist[n]}" "${fullist[d]}")
+                              [[ ${fullist[n]} =~ $items_filter ]] && {
+                                  [[ ${filtered_hosts[${fullist[n]}]} ]] || { # to remove dupes
+                                      filtered_list+=("${fullist[n]}" "${fullist[d]}")
+                                      filtered_hosts[${fullist[n]}]="${fullist[d]}"
+                                  }
+                              }
                           done
                           ((${#filtered_list[@]}==2)) && { clear; pause 'Nothing found'; $1; }
                           list=( "${filtered_list[@]}" );;
@@ -578,9 +587,10 @@ filter_items(){
 first_dialog(){
     local btns
     group= dfilelist=
-    [[ $OPT =~ name ]] && btns=('GET NAME' '' 'EXIT' 'CONTENTS') || btns=('CONNECT' 'RUN COMMAND' 'EXIT' 'CONTENTS')
+    [[ $OPT =~ name ]] && btns=('GET NAME' '' 'EXIT' 'CONTENTS') || btns=('CONNECT/SELECT' 'RUN COMMAND' 'EXIT' 'CONTENTS')
 	target=$(D "${btns[@]}" --menu "Select host to connect to. $USERNOTE" 0 0 0 "${list[@]//_LINE_/$descline}" "${quick_butt[@]}")
 	case $target:$? in
+	          "":0) first_dialog;;
 	     "$qcmd":0) first_dialog;;
 	    "$qbut1":[03]) filter_items 'first_dialog';;
        *{\ *\ }*:0) filter=${target//*\{ }; filter=${filter// \}*}; new_list; first_dialog ;;

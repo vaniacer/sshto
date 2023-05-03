@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 #--------------------------{ Default values }---------------------------------------------------------------------------
      OPT=$1     # Options.
   sshdir=~/.ssh # Ssh configfiles folder
@@ -74,6 +74,7 @@ cmdlist_renew(){
         "Script"     "Run custom script on \Z4$group\Z0"
         ''           ''
         'Yes'        "Say 'yes' to SSH"
+        'Fix_id'     "Update hosts in known_hosts"
         "Info"       "Full system info"
         "Alias"      "Add my useful aliases to \Z4$group\Z0"
         "Copy"       "Copy selected file or dir to \Z4$group\Z0"
@@ -201,7 +202,7 @@ ssh_yes(){
 
 fix_id(){
     local hostname=${hostnames["$target"]}
-    local address=$(dig +short $hostname)
+    local address=$(dig  +short   $hostname)
     ssh-keygen -f "$knwhosts" -R "$hostname"
     ssh-keygen -f "$knwhosts" -R "$address"
     ssh_yes
@@ -630,7 +631,7 @@ second_dialog(){
             Alias:0) clear; $runner add_aliases; pause;;
              Info:0) clear; $runner system_info; pause;;
               Yes:0) clear; $runner ssh_yes    ; pause;;
-           Fix_id:0) fix_id      ;;
+           Fix_id:0) clear; $runner fix_id     ; pause;;
            Sshkey:0) add_sshkey  ;;
              Copy:0) copy_files  ;;
            Upload:0) upload      ;;
@@ -655,12 +656,13 @@ second_dialog(){
 }
 
 #-------------{ Create the list of hosts. Get hosts and descriptions from ~/.ssh/config* }------------------------------
+declare -A hostnames=()
 desclength=20
 restart(){
     fullist=()
     content=()
+    hostnames=()
     selected_list=()
-    declare -A hostnames=()
     CONFILES=$(shopt -s nullglob; echo "$sshdir"/{config,config*[!~]}) # SSH confiles list.
     while read -r name hostname desc; do
         case    ${name,,} in
@@ -701,13 +703,11 @@ restart(){
      qcmd='-----------{ Quick commands }-----------'
     qbut1='1             Filter items'
     quick_butt=(
-        '' ''  "$qcmd"  "$descline"
+        ''        ''
+        "$qcmd"   "$descline"
         "$qbut1"  "Create list of hosts filtered by pattern"
     )
-
 }
-
-
 
 #--{ Go baby, GO!) }--
 check_confile;  restart

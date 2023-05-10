@@ -566,20 +566,21 @@ filter_items(){
     filtered_list=('-----------{ Filtered_hosts }-----------' "$descline")
     items_filter=$(D 'FILTER' 'CLEAR' 'BACK' '' --max-input 60 --inputbox 'Enter filtering pattern' 10 60 $items_filter)
 	case $items_filter:$? in
-	                '':0) :;;
-                     *:0) for ((n=0,d=1; n<N; n+=2,d+=2)); do
-                              [[ ${fullist[n]} =~ ^-+.*-+$      ]] && continue
-                              [[ ${fullist[n]} =~ $items_filter ]] && {
+                '':0|*:3) unset filtered_list items_filter; contents_menu;;
+                     *:0) items_filter=${items_filter,,}
+                          for ((n=0,d=1; n<N; n+=2,d+=2)); do
+                              filter_by=${fullist[n]}
+                              [[ $items_filter  =~ ^\#.*$             ]] && filter_by=${fullist[d]}
+                              [[ ${filter_by,,} =~ ^-+.*-+$           ]] && continue
+                              [[ ${filter_by,,} =~ ${items_filter/\#} ]] && {
                                   [[ ${filtered_hosts[${fullist[n]}]} ]] || { # to remove dupes
                                       filtered_list+=("${fullist[n]}" "${fullist[d]}")
-                                      filtered_hosts[${fullist[n]}]="${fullist[d]}"
+                                        filtered_hosts[${fullist[n]}]="${fullist[d]}"
                                   }
                               }
                           done
                           ((${#filtered_list[@]}==2)) && { clear; pause 'Nothing found'; $1; }
                           list=( "${filtered_list[@]}" );;
-                     *:3) unset filtered_list items_filter
-                          contents_menu;;
                      *:1) $1;;
 	esac;                 $1
 }

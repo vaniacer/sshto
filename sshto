@@ -139,9 +139,10 @@ how_to_install(){
 
 for package in dialog gawk; { which $package &> /dev/null || how_to_install $package 1; }
 #------------------------{check bash version }--------------------------------------------------------------------------
-version=4.2
-echo ${BASH_VERSINFO[@]::2} | gawk -vv=$version '{if($1"."$2<v){exit 1}}' || {
-    printf "\nBASH version ${BLD}$version+$DEF required to run ${BLD}sshto$DEF, your is - $BLD$BASH_VERSION$DEF\n"
+tversion=4.2
+cversion=${BASH_VERSINFO[0]}.${BASH_VERSINFO[1]}
+gawk '{if($1>$2){exit 1}}' <<< "$tversion $cversion" || {
+    printf "\nBASH version ${BLD}$tversion+$DEF required to run ${BLD}sshto$DEF, your is - $BLD$BASH_VERSION$DEF\n"
     exit 1
 }
 #------------------------{ Waiting animation }--------------------------------------------------------------------------

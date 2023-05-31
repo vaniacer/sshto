@@ -665,7 +665,12 @@ restart(){
     content=()
     hostnames=()
     selected_list=()
-    CONFILES=$(shopt -s nullglob; echo "$sshdir"/{config,config*[!~]}) # SSH confiles list.
+    CONFILES=$( # SSH confiles list.
+        shopt -s nullglob
+        echo  "$sshdir"/config*[!~]
+        [[ -f "$sshdir"/config ]] && echo "$sshdir"/config
+    )
+
     while read -r name hostname desc; do
         case    ${name,,} in
             'group_name') name="{ $desc }"

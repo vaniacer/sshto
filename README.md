@@ -108,6 +108,15 @@ You can customize dialog itself a bit by creating and editing its config file:
 dialog --create-rc ~/.dialogrc
 nano ~/.dialogrc
 </pre>
+
+If you don't have dialog and don't want(or can't) to install it, there is a dialog-less version of sshto
+in my new project [bashui](https://github.com/vaniacer/bashui) here is how it looks:
+![bashui-hosts](https://habrastorage.org/getpro/habr/upload_files/024/c74/38e/024c7438e6429f5e37a8a71d98bf7edb.png)
+
+![bashui-commands](https://habrastorage.org/getpro/habr/upload_files/495/2cc/526/4952cc52616db16acfa7b2fd9e8d366f.png)
+
+Try it [bashui-sshto](https://github.com/vaniacer/bashui/blob/master/demo_sshto)!
+
 # How to install
 Clone\download this project, go to it's folder and run:
 <pre>sudo cp sshto /usr/bin/

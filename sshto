@@ -346,13 +346,13 @@ bye(){
 };  trap bye INT
 
 #============================>-{ Dialog functions }-<===================================================================
-do='--output-fd 1 --colors' # dialog common options
-eb='--extra-button'         # extra
-hb='--help-button'          # buttons
-cl='--cancel-label'         # and
-el='--extra-label'          # short
-hl='--help-label'           # label
-ol='--ok-label'             # names
+do='--output-fd 1 --colors --no-collapse' # dialog common options
+eb='--extra-button'                       # extra
+hb='--help-button'                        # buttons
+cl='--cancel-label'                       # and
+el='--extra-label'                        # short
+hl='--help-label'                         # label
+ol='--ok-label'                           # names
 
 # Dialog buttons order and exit codes
 #<OK> <Extra> <Cancel> <Help>

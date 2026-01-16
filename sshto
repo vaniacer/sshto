@@ -430,7 +430,7 @@ homepath(){
 
 uploader(){
     printf "Uploading $BLD$ufilename$DEF\n"
-    scp -r $SSH_OPT $ufilename $target:"$DEST/"
+    rsync -Pgzortl --rsh="ssh $SSH_OPT" $ufilename $target:"$DEST/"
 }
 
 mountdest(){
@@ -465,6 +465,7 @@ upload(){
 
 download(){
     [[ $dfilelist ]] || {
+        WAIT
         dfilelist=$(ssh $SSH_OPT $target ls -sh1 $DEST 2>&1) \
             && dfilelist=( $(awk '{print $2,$1}' <<< "$dfilelist") ) \
             || {
@@ -474,13 +475,14 @@ download(){
                 dfilelist=
                 second_dialog
             }
+        GO
     }
 	dfilename=$(D "DOWNLOAD" '' "BACK" '' --menu "Select file\folder to download:" 0 0 0 "${dfilelist[@]:2}")
 	case $? in
          0) [[ $dfilename ]] || download
             clear
             printf "Downloading $BLD$dfilename$DEF\n"
-            scp -r $SSH_OPT $target:"$DEST/$dfilename" . || pause;;
+            rsync -Pgzortl --rsh="ssh $SSH_OPT" $target:"$DEST/$dfilename" . || pause;;
          *) return;;
 	esac;   download
 }

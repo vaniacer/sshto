@@ -13,6 +13,7 @@
     home=$PWD   # Destination folder on local  server to download\upload files and sshfs mount.
 sshfsopt=       # Sshfs options if needed
 group_id=dummy  # Group separator identification template, 'dummy' by default, don't ask why, historically)
+rsyncopt='-Pgzortl'            # Upload/download rsync options
 knwhosts="$sshdir"/known_hosts # Path to known_hosts file.
  confile=~/.sshtorc            # Path to config file, have to be chmod'ed to 600.
  tmpfile=/tmp/sshtorc-${USER}  # Path to tmp file to save selected context.
@@ -430,7 +431,7 @@ homepath(){
 
 uploader(){
     printf "Uploading $BLD$ufilename$DEF\n"
-    rsync -Pgzortl --rsh="ssh $SSH_OPT" $ufilename $target:"$DEST/"
+    rsync $rsyncopt --rsh="ssh $SSH_OPT" $ufilename $target:"$DEST/"
 }
 
 mountdest(){
@@ -482,7 +483,7 @@ download(){
          0) [[ $dfilename ]] || download
             clear
             printf "Downloading $BLD$dfilename$DEF\n"
-            rsync -Pgzortl --rsh="ssh $SSH_OPT" $target:"$DEST/$dfilename" . || pause;;
+            rsync $rsyncopt --rsh="ssh $SSH_OPT" $target:"$DEST/$dfilename" . || pause;;
          *) return;;
 	esac;   download
 }

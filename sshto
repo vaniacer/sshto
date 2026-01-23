@@ -285,7 +285,7 @@ edit_conf(){
 }
 
 #------------------------{ SSH to target server }-----------------------------------------------------------------------
-go_to_target(){ clear; ssh $SSH_OPT $target || pause; }
+go_to_target(){ set_title; clear; ssh $SSH_OPT $target || pause; reset_title; }
 
 #------------------------{ Add aliases }--------------------------------------------------------------------------------
 add_aliases(){
@@ -346,6 +346,27 @@ bye(){
     ls $lsopts
     exit 0
 };  trap bye INT
+
+#------------------------{ tmux/GNU screen renaming function }---------------------------------------------------------
+set_title () {
+    if type tmux >/dev/null 2>/dev/null; then
+        WINDOWNAME=$(tmux display-message -p '#W') # Get current window title
+        tmux rename-window "$target"
+    fi
+    if type screen >/dev/null 2>/dev/null; then
+        WINDOWNAME=${SHELL##*/} # Get SHELL name (e.g. bash) as window title not possible
+        printf $'\ek%s\e\\' "$target"
+    fi
+}
+
+reset_title () {
+    if type tmux >/dev/null 2>/dev/null; then
+        tmux rename-window "$WINDOWNAME"
+    fi
+    if type screen >/dev/null 2>/dev/null; then
+        printf $'\ek%s\e\\' "$WINDOWNAME"
+    fi
+}
 
 #============================>-{ Dialog functions }-<===================================================================
 do='--output-fd 1 --colors --no-collapse' # dialog common options

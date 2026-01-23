@@ -310,15 +310,16 @@ group_run(){
     WAIT
     data=$(
         for ((i=0; i<${#group_list[@]}; i+=2)); do
-              target="${group_list[$i]}"
-          [[ $target =~ ^-+.*-+$ ]] && continue
-          (  code="$BLD$GRN"
-             data=$( $func 2>&1 | sed ':a;N;$!ba;s/\n/\\n/g'; exit ${PIPESTATUS[0]}) || code="$BLD$RED"
-             echo "$code----{ $target }----$DEF\\n${data:-Command did not output anything.}\\n"
-          )  &
+            target="${group_list[$i]}"
+            [[ $target =~ ^-+.*-+$ ]] && continue
+            (
+                code="$BLD$GRN"
+                data=$($func 2>&1 | sed ':a;N;$!ba;s/\n/\\n/g'; exit ${PIPESTATUS[0]}) || code="$BLD$RED"
+                echo "$code----{ $target }----$DEF\\n${data:-Command did not output anything.}\\n"
+            )   &
         done
     )
-    GO; printf -- '%b' "$data"
+    GO; printf -- '%b' "$(sort -Vk2 <<< "$data")"
     SSH_OPT="$SSH_OPT_CUR"
 }
 

@@ -94,12 +94,15 @@ HostName localhost
 Host moserver3 #Third server
 HostName localhost
 </pre>
-Script greps data from multiple config files via pattername `config*` in `~/.ssh` dir.</br>
-So you can split config to multiple files and use them with <i>Include</i> directive, example:
+Sshto supports <i>Include</i> directive of ssh configs, you can split config to multiple files, and it'll work, example:
 <pre>
+$ cat ~/.ssh/config
 Include config_moscow
 Include config_rybinsk
-Include config*
+Include conf.d/config_*
+
+$ ls ~/.ssh/
+config config_moscow config_rybinsk conf.d
 </pre>
 All preset variables and functions could be tweaked via `~/.sshtorc` config file:
 <pre>
